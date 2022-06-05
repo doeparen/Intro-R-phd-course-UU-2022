@@ -1,0 +1,542 @@
+---
+title: "Text analysis II: Building a tidytext toolbox"
+subtitle: "Introduction to R for Social Sciences (Sociology ∞ HERO)"
+author: 
+- "Josef Ginnerskov, doctoral candidate"
+# Uncomment the line below for adding more authors
+#- "Another Author"
+institute: "Department of Sociology"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    self_contained: true # This allows to use the html file without copying all files.
+    lib_dir: libs
+    css: ["./resources/css/uppsala.css", "./resources/css/uppsala-fonts.css"]
+    includes:
+      in_header: "./libs/partials/header.html"
+#      after_body: "./resources/html/insert-logo.html"
+    nature:
+      beforeInit: ["./resources/js/macro.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: "16:9" # If you change it to 4:3, open insert-logo.html to fix the watermark position.
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F,
+                      dpi = 600,
+                      fig.asp = 0.5, # You may change these parameters for each chunk as needed.
+                      fig.align="center",
+                      out.width = "80%")
+
+library(tidyverse)
+
+#For exporting as pdf, run 'pagedown::chrome_print('html')' in the console, where 'html' is the name of html file to be exported as pdf (in this case, 'template.html').
+
+```
+
+# Loading books from www.gutenberg.org
+```{r, echo = T, eval = F}
+library(gutenbergr)
+
+sociology_raw <- gutenberg_download(c(41360, 46423, 13205, 30610, 6568, 21609), 
+                                    meta_fields = c("author", "title"), strip = TRUE)
+head(sociology_raw)
+```
+
+```{r}
+library(gutenbergr)
+
+sociology_raw <- gutenberg_download(c(41360, 46423, 13205, 30610, 6568, 21609), # Ellwood, Durkheim, Marx
+                                    meta_fields = c("author", "title"), strip = TRUE)
+head(sociology_raw)
+```
+---
+# Preprocessing - fix awkward signs
+```{r, echo = T, eval = F}
+sociology_raw$text <- gsub("_","",as.character(sociology_raw$text))
+sociology_raw$text <- gsub("--"," ",as.character(sociology_raw$text))
+```
+
+```{r}
+sociology_raw$text <- gsub("--"," ",as.character(sociology_raw$text))
+sociology_raw$text <- gsub("_","",as.character(sociology_raw$text))
+```
+---
+
+# Turning books into a tidy tibble
+```{r, echo = T, eval = F}
+library(tidyverse)
+library(tidytext)
+tidy_sociology <- sociology_raw %>%
+    mutate(line = row_number()) %>%
+    unnest_tokens(word, text)
+
+head(tidy_sociology)
+```
+
+```{r}
+library(tidyverse)
+library(tidytext)
+tidy_sociology <- sociology_raw %>%
+    mutate(line = row_number()) %>%
+    unnest_tokens(word, text)
+
+head(tidy_sociology)
+```
+---
+# Removing stop words
+```{r, echo = T, eval = F}
+tidy_sociology <- tidy_sociology %>%
+  anti_join(stop_words)
+
+my_words <- tibble(word = c("p", "cit", "tr", "pp", "ff", "nat", "ibid", "geddes", "prof", "per"))
+
+tidy_sociology <- tidy_sociology %>%
+  anti_join(my_words)
+```
+
+```{r}
+tidy_sociology <- tidy_sociology %>%
+  anti_join(stop_words)
+
+my_words <- tibble(word = c("p", "cit", "tr", "pp", "ff", "nat", "ibid", "geddes", "prof", "per"))
+
+tidy_sociology <- tidy_sociology %>%
+  anti_join(my_words)
+```
+
+---
+# Basic global/corpus count
+```{r, echo = T, eval = F}
+tidy_sociology %>%
+    count(word, sort = TRUE) %>%
+    top_n(10)
+```
+
+```{r}
+tidy_sociology %>%
+    count(word, sort = TRUE) %>%
+    top_n(10)
+```
+
+---
+# Basic local/document count
+```{r, echo = T, eval = F}
+tidy_sociology %>%
+    filter(author == "Marx, Karl") %>%
+    count(word, sort = TRUE) %>%
+    top_n(10)
+```
+
+```{r}
+tidy_sociology %>%
+    filter(author == "Marx, Karl") %>%
+    count(word, sort = TRUE) %>%
+    top_n(10)
+```
+
+---
+# Generating a word cloud (a)
+
+```{r, echo = T, eval = F}
+library(wordcloud)
+
+tidy_sociology %>%
+  count(word) %>%
+  with(wordcloud(word, n, 
+                 max.words = 100, 
+                 colors = brewer.pal(8, "Dark2")))
+```
+---
+# Generating a word cloud (b)
+```{r}
+library(wordcloud)
+
+tidy_sociology %>%
+  count(word) %>%
+  with(wordcloud(word, n, 
+                 max.words = 100, 
+                 colors = brewer.pal(8, "Dark2")))
+```
+
+---
+# Comparing word occurences per book
+```{r, echo = T, eval = F}
+words_sociology <- tidy_sociology %>%
+  count(author, word, sort = TRUE)
+
+words_sociology_work <- words_sociology %>% 
+  group_by(author) %>% 
+  summarize(total = sum(n))
+
+words_sociology_work <- left_join(words_sociology_work, words_sociology)
+```
+
+```{r}
+words_sociology <- tidy_sociology %>%
+  count(author, word, sort = TRUE)
+
+words_sociology_work <- words_sociology %>% 
+  group_by(author) %>% 
+  summarize(total = sum(n))
+
+words_sociology_work <- left_join(words_sociology, words_sociology_work)
+
+words_sociology_work
+```
+---
+# Viz word occurences per book (a)
+```{r, echo = T, eval = F}
+words_sociology_work %>% filter (n >= 333) %>% 
+   mutate(word = reorder(word, n)) %>% 
+   ggplot(aes(x = word, y = n, fill = author)) + 
+   geom_col() + 
+   coord_flip()
+```
+---
+# Viz word occurences per book (b)
+
+```{r}
+words_sociology_work %>% filter (n >= 333) %>% 
+   mutate(word = reorder(word, n)) %>% 
+   ggplot(aes(x = word, y = n, fill = author)) + 
+   geom_col() + 
+   coord_flip()
+```
+---
+# Comparing books via td-idf
+
+```{r, echo = T, eval = F}
+sociology_tf_idf <- tidy_sociology %>%
+    count(author, word, sort = TRUE) %>%
+    bind_tf_idf(word, author, n) %>%
+    arrange(-tf_idf) %>%
+    group_by(author) %>%
+    top_n(15) %>%
+    ungroup
+```
+
+```{r}
+sociology_tf_idf <- tidy_sociology %>%
+    count(author, word, sort = TRUE) %>%
+    bind_tf_idf(word, author, n) %>%
+    arrange(-tf_idf) %>%
+    group_by(author) %>%
+    top_n(15) %>%
+    ungroup
+sociology_tf_idf
+```
+---
+# Viz books via td-idf (a)
+
+```{r, echo = T, eval = F}
+sociology_tf_idf %>%
+    mutate(word = reorder_within(word, tf_idf, author)) %>%
+    ggplot(aes(word, tf_idf, fill = author)) +
+    geom_col(alpha = 0.8, show.legend = FALSE) +
+    facet_wrap(~ author, scales = "free", ncol = 3) +
+    scale_x_reordered() +
+    coord_flip() +
+    theme(strip.text=element_text(size=11))
+```
+---
+# Viz books via td-idf (b)
+
+```{r}
+sociology_tf_idf %>%
+    mutate(word = reorder_within(word, tf_idf, author)) %>%
+    ggplot(aes(word, tf_idf, fill = author)) +
+    geom_col(alpha = 0.8, show.legend = FALSE) +
+    facet_wrap(~ author, scales = "free", ncol = 3) +
+    scale_x_reordered() +
+    coord_flip() +
+    theme(strip.text=element_text(size=11))
+```
+
+---
+# Calculating word correlations
+
+```{r, echo = T, eval = F}
+library(widyr)
+cors_sociology <- words_sociology_work %>% 
+  group_by(word) %>%
+  filter(n >= 250) %>%
+  pairwise_cor(word, author, sort = TRUE, upper = FALSE)
+```
+
+```{r}
+library(widyr)
+cors_sociology <- words_sociology_work %>% 
+  group_by(word) %>%
+  filter(n >= 250) %>%
+  pairwise_cor(word, author, sort = TRUE, upper = FALSE)
+
+cors_sociology
+```
+---
+
+# Word correlations -> word graph
+```{r, echo = T, eval = F}
+library(igraph)
+set.seed(1234)
+g_keywords <- cors_sociology %>%
+  filter(correlation > .3) %>%
+  graph_from_data_frame()
+```
+
+```{r}
+library(igraph)
+set.seed(1234)
+g_keywords <- cors_sociology %>%
+  filter(correlation > .3) %>%
+  graph_from_data_frame()
+g_keywords
+```
+
+---
+# Viz the word graph (a)
+```{r, echo = T, eval = F}
+library(ggraph)
+g_keywords %>% 
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = correlation, edge_width = correlation), edge_colour = "orange") +
+  geom_node_point(size = 0.5*igraph::degree(g_keywords), colour = "lightblue") +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void()
+```
+
+---
+# Viz the word graph (b)
+```{r}
+library(ggraph)
+g_keywords %>% 
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = correlation, edge_width = correlation), edge_colour = "orange") +
+  geom_node_point(size = 0.5*igraph::degree(g_keywords), colour = "lightblue") +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void()
+```
+
+---
+# Preparing for topic modeling
+
+```{r, echo = T, eval = F}
+sociology_dtm <- words_sociology_work %>%
+  cast_dtm(author, word, n)
+```
+
+```{r}
+sociology_dtm <- words_sociology_work %>%
+  cast_dtm(author, word, n)
+
+sociology_dtm
+```
+---
+# Run a topic model
+```{r, echo = T, eval = F}
+library(topicmodels)
+sociology_lda <- LDA(sociology_dtm, k = 4, control = list(seed = 1234))
+```
+
+```{r}
+library(topicmodels)
+sociology_lda <- LDA(sociology_dtm, k = 4, control = list(seed = 1234))
+sociology_lda
+```
+---
+# Inspecting the beta (word/topic prob)
+
+```{r, echo = T, eval = F}
+sociology_topics <- tidy(sociology_lda, matrix = "beta")
+```
+
+```{r}
+sociology_topics <- tidy(sociology_lda, matrix = "beta")
+sociology_topics
+```
+---
+# Top terms in topic model beta
+
+```{r, echo = T, eval = F}
+top_terms <- sociology_topics %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>% 
+  ungroup() %>%
+  arrange(topic, -beta)
+```
+
+```{r}
+top_terms <- sociology_topics %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>% 
+  ungroup() %>%
+  arrange(topic, -beta)
+top_terms
+```
+---
+# Viz topic model beta (a)
+
+```{r, echo = T, eval = F}
+library(ggplot2)
+
+top_terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+---
+# Viz topic model beta (b)
+
+```{r}
+library(ggplot2)
+
+top_terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+---
+# Inspecting the gamma (doc/topic prob)
+```{r, echo = T, eval = F}
+sociology_gamma <- tidy(sociology_lda, matrix = "gamma")
+```
+
+```{r}
+sociology_gamma <- tidy(sociology_lda, matrix = "gamma")
+sociology_gamma
+```
+---
+# Viz topic model gamma (a)
+
+```{r, echo = T, eval = F}
+sociology_gamma %>%
+  mutate(document = reorder(document, gamma * topic)) %>%
+  ggplot(aes(factor(topic), gamma)) +
+  geom_boxplot() +
+  facet_wrap(~ document) +
+  labs(x = "topic", y = expression(gamma))
+```
+---
+# Viz topic model gamma (b)
+
+```{r}
+sociology_gamma %>%
+  mutate(document = reorder(document, gamma * topic)) %>%
+  ggplot(aes(factor(topic), gamma)) +
+  geom_boxplot() +
+  facet_wrap(~ document) +
+  labs(x = "topic", y = expression(gamma))
+```
+---
+# Adding sentiments to your tibble
+```{r, echo = T, eval = F}
+bing <- get_sentiments("bing")
+
+tidy_sociology %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  top_n(10)
+```
+
+```{r}
+bing <- get_sentiments("bing")
+
+tidy_sociology %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  top_n(10)
+```
+---
+# Viz top sentiments (a)
+```{r, echo = T, eval = F}
+sentiment_counts <- tidy_sociology %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE)
+
+sentiment_counts %>%
+  filter(n > 100) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(y = "Contribution to sentiment")
+```
+---
+# Viz top sentiments (b)
+```{r}
+sentiment_counts <- tidy_sociology %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE)
+
+
+sentiment_counts %>%
+  filter(n > 100) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(y = "Contribution to sentiment")
+```
+---
+# The sentiment narrative unfolds (a)
+
+```{r, echo = T, eval = F}
+library(tidyr)
+
+sentisociology <- tidy_sociology %>%
+  inner_join(bing) %>%
+  count(author, index = line %/% 100, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+```
+
+```{r}
+library(tidyr)
+
+sentisociology <- tidy_sociology %>%
+  inner_join(bing) %>%
+  count(author, index = line %/% 100, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+```
+
+```{r, echo = T, eval = F}
+library(ggplot2)
+
+ggplot(sentisociology, aes(index, sentiment, fill = author)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  facet_wrap(~author, ncol = 2, scales = "free_x")
+```
+---
+# The sentiment narrative unfolds (b)
+
+```{r}
+library(ggplot2)
+
+ggplot(sentisociology, aes(index, sentiment, fill = author)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  facet_wrap(~author, ncol = 2, scales = "free_x")
+```
+
+
+---
+
+# Thank you for your time!
+
+## Do not hesitate to contact me
+
+|                                                                                              |                          |
+|:---------------------------------------------------------------------------------------------|:-------------------------|
+| <a href="mailto:josef.ginnerskov@soc.uu.se">.UUred[<i class="fa fa-paper-plane fa-fw"></i>] |josef.ginnerskov@soc.uu.se |  
+| <a href="http://twitter.com/doeparen">.UUred[<i class="fa fa-twitter fa-fw"></i>]         |@doeparen              |
+| <a href="http://github.com/doeparen">.UUred[<i class="fa fa-gitlab fa-fw"></i>]           |@doeparen              |
