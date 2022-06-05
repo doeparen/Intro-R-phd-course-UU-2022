@@ -1,0 +1,309 @@
+---
+title: "Text analysis II: Commending the tm package"
+subtitle: "Introduction to R for Social Sciences (Sociology ∞ HERO)"
+author: 
+- "Josef Ginnerskov, doctoral candidate"
+# Uncomment the line below for adding more authors
+#- "Another Author"
+institute: "Department of Sociology"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    self_contained: true # This allows to use the html file without copying all files.
+    lib_dir: libs
+    css: ["./resources/css/uppsala.css", "./resources/css/uppsala-fonts.css"]
+    includes:
+      in_header: "./libs/partials/header.html"
+#      after_body: "./resources/html/insert-logo.html"
+    nature:
+      beforeInit: ["./resources/js/macro.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: "16:9" # If you change it to 4:3, open insert-logo.html to fix the watermark position.
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F,
+                      dpi = 600,
+                      fig.asp = 0.5, # You may change these parameters for each chunk as needed.
+                      fig.align="center",
+                      out.width = "80%")
+
+library(tidyverse)
+
+#For exporting as pdf, run 'pagedown::chrome_print('html')' in the console, where 'html' is the name of html file to be exported as pdf (in this case, 'template.html').
+
+```
+
+# Loading character vector documents
+```{r, echo = T, eval = F}
+vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly on the basic principle that social facts must be studied as things, that is, as realities external to the individual. There is no principle for which we have received more criticism; but none is more fundamental. Indubitably for sociology to be possible, it must above all have an object all its own. It must take cognizance of a reality which is not in the domain of other sciences... there can be no sociology unless societies exist, and that societies cannot exist if there are only individuals.", 
+               Weber = "'Sociology' is a word which is used in many different senses. In the sense adopted here, it means the science whose object is to interpret the meaning of social action and thereby give a causal explanation of the way in which the action proceeds and the effects which it produces. By 'action' in this definition is meant human behaviour when and to the extent that the agent of agents see it as subjectively meaningful: the behaviour may be either internal or external, and may consist in the agent's doing something, omitting to do something, or having something done to him. By 'social' action is meant an action in which the meaning intended by the agent or agents involves a relation to another person's behaviour and in which that relation determines the way in which the action proceeds.", 
+               Simmel = "I UNDERSTAND the task of sociology to be description and determination of the historico-psychological origin of those forms in which interactions take place between human beings. The totality of these interactions, springing from the most diverse impulses, directed toward the most diverse objects, and aiming at the most diverse ends, constitutes 'society'. Those different contents in connection with which the forms of interaction manifest themselves are the subject-matter of special sciences. These contents attain the character of social facts by virtue of occurring in this particular form in the interactions of men.",
+              Tarde = "I will pass over a number of secondary objections which the application of the sociological point of view may encounter along its way. Since, after all, the fundamental nature of things is strictly inaccessible, and we are obliged to construct hypotheses in order to penetrate it, let us openly adopt this one and push it to its conclusion. Hypotheses fingo, I say naively. What is dangerous in the sciences are not tightly linked conjectures, logically followed to the ultimate depths or the ultimate precipices, but rather the ghosts of ideas which float aimlessly in the mind. The universal sociological point of view seems to me to be one of these spectres which haunt the brains of our speculative contemporaries.")
+```
+
+```{r}
+vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly on the basic principle that social facts must be studied as things, that is, as realities external to the individual. There is no principle for which we have received more criticism; but none is more fundamental. Indubitably for sociology to be possible, it must above all have an object all its own. It must take cognizance of a reality which is not in the domain of other sciences... there can be no sociology unless societies exist, and that societies cannot exist if there are only individuals.", 
+               Weber = "'Sociology' is a word which is used in many different senses. In the sense adopted here, it means the science whose object is to interpret the meaning of social action and thereby give a causal explanation of the way in which the action proceeds and the effects which it produces. By 'action' in this definition is meant human behaviour when and to the extent that the agent of agents see it as subjectively meaningful: the behaviour may be either internal or external, and may consist in the agent's doing something, omitting to do something, or having something done to him. By 'social' action is meant an action in which the meaning intended by the agent or agents involves a relation to another person's behaviour and in which that relation determines the way in which the action proceeds.", 
+               Simmel = "I UNDERSTAND the task of sociology to be description and determination of the historico-psychological origin of those forms in which interactions take place between human beings. The totality of these interactions, springing from the most diverse impulses, directed toward the most diverse objects, and aiming at the most diverse ends, constitutes 'society'. Those different contents in connection with which the forms of interaction manifest themselves are the subject-matter of special sciences. These contents attain the character of social facts by virtue of occurring in this particular form in the interactions of men.",
+              Tarde = "I will pass over a number of secondary objections which the application of the sociological point of view may encounter along its way. Since, after all, the fundamental nature of things is strictly inaccessible, and we are obliged to construct hypotheses in order to penetrate it, let us openly adopt this one and push it to its conclusion. Hypotheses fingo, I say naively. What is dangerous in the sciences are not tightly linked conjectures, logically followed to the ultimate depths or the ultimate precipices, but rather the ghosts of ideas which float aimlessly in the mind. The universal sociological point of view seems to me to be one of these spectres which haunt the brains of our speculative contemporaries.")
+```
+
+---
+# Creating a corpus (vector source)
+```{r, echo = T, eval = F}
+library(tm) #Package for text mining tasks
+corpus <- VCorpus(VectorSource(vectordata)) # create a volatile corpus, kept in memory as a R object.
+inspect(corpus)
+```
+
+```{r}
+library(tm) #Package for text mining tasks
+
+corpus <- VCorpus(VectorSource(vectordata)) # create a volatile corpus, kept in memory as a R object.
+
+inspect(corpus)
+```
+
+---
+# Exporting corpus and importing txt
+```{r, echo = T, eval = F}
+writeCorpus(corpus)
+dircorpus<-VCorpus(DirSource(pattern = ".txt")) #default is reading txt from wd
+inspect(dircorpus)
+```
+
+```{r}
+writeCorpus(corpus)
+
+dircorpus<-VCorpus(DirSource(pattern = ".txt")) ##default is reading plain texts from working directory, but can be specified, see getReaders(), e.g, VCorpus(DirSource("/User/Directory", pattern = "Das_Kapital"), readerControl = list(reader=readDOC, language="German"))
+
+inspect(dircorpus)
+```
+
+---
+# Managing corpus metadata
+```{r, echo = T, eval = F}
+meta(corpus) <- c("Durkheim", "Weber", "Simmel", "Tarde")
+meta(corpus)
+
+meta(corpus[[1]], "author") <- "Durkheim"
+meta(corpus[[2]], "author") <- "Weber"
+meta(corpus[[3]], "author") <- "Simmel"
+meta(corpus[[4]], "author") <- "Tarde"
+
+meta(corpus[[3]])
+```
+
+```{r}
+meta(corpus) <- c("Durkheim", "Weber", "Simmel", "Tarde")
+meta(corpus)
+
+meta(corpus[[1]], "author") <- "Durkheim"
+meta(corpus[[2]], "author") <- "Weber"
+meta(corpus[[3]], "author") <- "Simmel"
+meta(corpus[[4]], "author") <- "Tarde"
+
+meta(corpus[[3]])
+```
+
+---
+# Preprocessing - to lower case
+```{r, echo = T, eval = F}
+cleancorpus <- tm_map(corpus, content_transformer(tolower))
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+
+```{r}
+cleancorpus <- tm_map(corpus, content_transformer(tolower))
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+---
+# Preprocessing - remove punctuation
+```{r, echo = T, eval = F}
+cleancorpus <- tm_map(corpus, removePunctuation)
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+
+```{r}
+cleancorpus <- tm_map(corpus, removePunctuation)
+
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+
+---
+# Preprocessing - strip whitespace
+```{r, echo = T, eval = F}
+cleancorpus <- tm_map(corpus, stripWhitespace)
+
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+
+```{r}
+cleancorpus <- tm_map(corpus, stripWhitespace)
+
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+---
+# Preprocessing - managing stopwords (1/2)
+```{r, echo = T, eval = F}
+stopwords("en")
+
+stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
+
+mystopwords <- c("something", "can", "must", "since")
+
+stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
+```
+
+```{r}
+stopwords("en")
+
+stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
+
+mystopwords <- c("something", "can", "must", "since")
+
+stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
+```
+---
+# Preprocessing - managing stopwords (2/2)
+```{r, echo = T, eval = F}
+stopcorpus[[3]]$content # What happened to Simmel?
+```
+
+```{r}
+stopcorpus[[3]]$content # What happened to Simmel?
+```
+---
+
+# Preprocessing - stemming
+```{r, echo = T, eval = F}
+library(SnowballC) # Package for stemming
+cleancorpus <- tm_map(corpus, stemDocument)
+
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+
+```{r}
+library(SnowballC) # Package for stemming
+cleancorpus <- tm_map(corpus, stemDocument)
+
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+---
+# Applying all preprocessing tasks
+```{r, echo = T, eval = F}
+cleancorpus <- tm_map(corpus, content_transformer(tolower))
+cleancorpus <- tm_map(cleancorpus, removePunctuation)
+cleancorpus <- tm_map(cleancorpus, removeWords, stopwords("en"))
+cleancorpus <- tm_map(cleancorpus, stemDocument)
+cleancorpus <- tm_map(cleancorpus, stripWhitespace)
+
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+
+```{r}
+cleancorpus <- tm_map(corpus, content_transformer(tolower))
+cleancorpus <- tm_map(cleancorpus, removePunctuation)
+cleancorpus <- tm_map(cleancorpus, removeWords, stopwords("en"))
+cleancorpus <- tm_map(cleancorpus, stemDocument)
+cleancorpus <- tm_map(cleancorpus, stripWhitespace)
+
+cleancorpus[[3]]$content # What happened to Simmel?
+```
+
+---
+# Generating a document-term matrix
+```{r, echo = T, eval = F}
+dtm <- DocumentTermMatrix(cleancorpus) #Generate dtm from the preprocessed corpus
+
+cleandtm <- DocumentTermMatrix(corpus, #Generate and preprocessing a dtm from the original corpus
+                               control = list(removePunctuation = TRUE, stripWhitespace = TRUE,
+                                              removeSparseTerms = 0.99, stopwords = TRUE,
+                                              stemming = TRUE))
+inspect(cleandtm) #Inspect dtm
+```
+
+```{r}
+dtm <- DocumentTermMatrix(cleancorpus) #Generate dtm from the preprocessed corpus
+
+cleandtm <- DocumentTermMatrix(corpus, #Generate and preprocessing a dtm from the original corpus
+                               control = list(removePunctuation = TRUE,
+                                              stripWhitespace = TRUE,
+                                              removeSparseTerms = 0.95,
+                                              stopwords = TRUE,
+                                              stemming = TRUE))
+
+inspect(cleandtm) #Inspect dtm
+```
+---
+# Creating dicionaries
+```{r, echo = T, eval = F}
+inspect(DocumentTermMatrix(corpus, list(dictionary=c("sociology","structure","action")))) #dictionary
+```
+
+```{r}
+inspect(DocumentTermMatrix(corpus, list(dictionary=c("sociology","structure","action")))) #dictionary
+```
+---
+# Operating a dtm - terms per corpus
+```{r, echo = T, eval = F}
+findFreqTerms(cleandtm, 4) # find terms appearing at least 4 times
+```
+
+```{r}
+findFreqTerms(cleandtm, 4) # find terms appearing at least 4 times
+```
+---
+# Operating a dtm - terms per doc
+```{r, echo = T, eval = F}
+findMostFreqTerms(cleandtm) # find most frequent terms for each document
+```
+
+```{r}
+findMostFreqTerms(cleandtm)
+```
+
+---
+# Operating a dtm - term correlations
+```{r, echo = T, eval = F}
+findAssocs(cleandtm, terms = "social", corlimit = 0.6) # terms correlating to a specific word
+```
+
+```{r}
+findAssocs(cleandtm, terms = "social", corlimit = 0.6) # terms correlating to a specific word
+```
+---
+# BONUS: From dtm to word cloud
+```{r, echo = T, eval = F}
+library(wordcloud) #Packge for generating wordclouds
+df <- as.matrix(dtm)
+df <- sort(colSums(df),decreasing=TRUE)
+df <- data.frame(word = names(df),freq=df)
+
+wordcloud(df$word,df$freq,colors = brewer.pal(12, "Dark2"))
+```
+---
+# BONUS: From dtm to word cloud (viz)
+```{r}
+library(wordcloud) #Packge for generating wordclouds
+df <- as.matrix(dtm)
+df <- sort(colSums(df),decreasing=TRUE)
+df <- data.frame(word = names(df),freq=df)
+
+wordcloud(df$word,df$freq,colors = brewer.pal(12, "Dark2"))
+```
+
+---
+# Thank you for your time!
+
+## Do not hesitate to contact me
+
+|                                                                                              |                          |
+|:---------------------------------------------------------------------------------------------|:-------------------------|
+| <a href="mailto:josef.ginnerskov@soc.uu.se">.UUred[<i class="fa fa-paper-plane fa-fw"></i>] |josef.ginnerskov@soc.uu.se |  
+| <a href="http://twitter.com/doeparen">.UUred[<i class="fa fa-twitter fa-fw"></i>]         |@doeparen              |
+| <a href="http://github.com/doeparen">.UUred[<i class="fa fa-gitlab fa-fw"></i>]           |@doeparen              |
