@@ -1,0 +1,29 @@
+/* Import my fonts */
+ @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@300&display=swap&family=Fira+Sans+Compressed:ital,wght@0,400;0,500;0,800;1,400;1,500;1,800&display=swap');
+
+h1 {
+  font-family: 'Fira Sans Compressed';
+  font-weight: 800;
+}
+
+h2 {
+  font-family: 'Fira Sans Compressed';
+  font-weight: 400;
+  font-size: 16px;
+}
+
+h3 {
+  font-family: 'Fira Sans Compressed';
+  font-weight: 400;
+}
+
+body {
+  font-family: "EB Garamond";
+  font-weight: normal;
+}
+
+.remark-code, .remark-inline-code { 
+  font-family: 'Fira Code', monospace;
+}
+
+.remark-code-line-highlighted     { background-color: #ffff88; }

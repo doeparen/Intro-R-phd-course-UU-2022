@@ -33,6 +33,8 @@ knitr::opts_chunk$set(echo = F,
 
 library(tidyverse)
 
+
+
 #For exporting as pdf, run 'pagedown::chrome_print('html')' in the console, where 'html' is the name of html file to be exported as pdf (in this case, 'template.html').
 
 ```
@@ -43,6 +45,7 @@ vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly o
                Weber = "'Sociology' is a word which is used in many different senses. In the sense adopted here, it means the science whose object is to interpret the meaning of social action and thereby give a causal explanation of the way in which the action proceeds and the effects which it produces. By 'action' in this definition is meant human behaviour when and to the extent that the agent of agents see it as subjectively meaningful: the behaviour may be either internal or external, and may consist in the agent's doing something, omitting to do something, or having something done to him. By 'social' action is meant an action in which the meaning intended by the agent or agents involves a relation to another person's behaviour and in which that relation determines the way in which the action proceeds.", 
                Simmel = "I UNDERSTAND the task of sociology to be description and determination of the historico-psychological origin of those forms in which interactions take place between human beings. The totality of these interactions, springing from the most diverse impulses, directed toward the most diverse objects, and aiming at the most diverse ends, constitutes 'society'. Those different contents in connection with which the forms of interaction manifest themselves are the subject-matter of special sciences. These contents attain the character of social facts by virtue of occurring in this particular form in the interactions of men.",
               Tarde = "I will pass over a number of secondary objections which the application of the sociological point of view may encounter along its way. Since, after all, the fundamental nature of things is strictly inaccessible, and we are obliged to construct hypotheses in order to penetrate it, let us openly adopt this one and push it to its conclusion. Hypotheses fingo, I say naively. What is dangerous in the sciences are not tightly linked conjectures, logically followed to the ultimate depths or the ultimate precipices, but rather the ghosts of ideas which float aimlessly in the mind. The universal sociological point of view seems to me to be one of these spectres which haunt the brains of our speculative contemporaries.")
+
 ```
 
 ```{r}
@@ -50,6 +53,7 @@ vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly o
                Weber = "'Sociology' is a word which is used in many different senses. In the sense adopted here, it means the science whose object is to interpret the meaning of social action and thereby give a causal explanation of the way in which the action proceeds and the effects which it produces. By 'action' in this definition is meant human behaviour when and to the extent that the agent of agents see it as subjectively meaningful: the behaviour may be either internal or external, and may consist in the agent's doing something, omitting to do something, or having something done to him. By 'social' action is meant an action in which the meaning intended by the agent or agents involves a relation to another person's behaviour and in which that relation determines the way in which the action proceeds.", 
                Simmel = "I UNDERSTAND the task of sociology to be description and determination of the historico-psychological origin of those forms in which interactions take place between human beings. The totality of these interactions, springing from the most diverse impulses, directed toward the most diverse objects, and aiming at the most diverse ends, constitutes 'society'. Those different contents in connection with which the forms of interaction manifest themselves are the subject-matter of special sciences. These contents attain the character of social facts by virtue of occurring in this particular form in the interactions of men.",
               Tarde = "I will pass over a number of secondary objections which the application of the sociological point of view may encounter along its way. Since, after all, the fundamental nature of things is strictly inaccessible, and we are obliged to construct hypotheses in order to penetrate it, let us openly adopt this one and push it to its conclusion. Hypotheses fingo, I say naively. What is dangerous in the sciences are not tightly linked conjectures, logically followed to the ultimate depths or the ultimate precipices, but rather the ghosts of ideas which float aimlessly in the mind. The universal sociological point of view seems to me to be one of these spectres which haunt the brains of our speculative contemporaries.")
+
 ```
 
 ---
@@ -155,8 +159,6 @@ stopwords("en")
 stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
 
 mystopwords <- c("something", "can", "must", "since")
-
-stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
 ```
 
 ```{r}
@@ -165,16 +167,18 @@ stopwords("en")
 stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
 
 mystopwords <- c("something", "can", "must", "since")
-
-stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
 ```
 ---
 # Preprocessing - managing stopwords (2/2)
 ```{r, echo = T, eval = F}
+stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
+
 stopcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
+stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
+
 stopcorpus[[3]]$content # What happened to Simmel?
 ```
 ---
