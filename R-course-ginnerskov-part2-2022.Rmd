@@ -117,66 +117,67 @@ meta(corpus[[3]])
 ---
 # Preprocessing - to lower case
 ```{r, echo = T, eval = F}
-cleancorpus <- tm_map(corpus, content_transformer(tolower))
-cleancorpus[[3]]$content # What happened to Simmel?
+lowcorpus <- tm_map(corpus, content_transformer(tolower))
+
+lowcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-cleancorpus <- tm_map(corpus, content_transformer(tolower))
-cleancorpus[[3]]$content # What happened to Simmel?
+lowcorpus <- tm_map(corpus, content_transformer(tolower))
+
+lowcorpus[[3]]$content # What happened to Simmel?
 ```
 ---
 # Preprocessing - remove punctuation
 ```{r, echo = T, eval = F}
-cleancorpus <- tm_map(corpus, removePunctuation)
-cleancorpus[[3]]$content # What happened to Simmel?
+punctcorpus <- tm_map(corpus, removePunctuation)
+
+punctcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-cleancorpus <- tm_map(corpus, removePunctuation)
+punctcorpus <- tm_map(corpus, removePunctuation)
 
-cleancorpus[[3]]$content # What happened to Simmel?
+punctcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ---
 # Preprocessing - strip whitespace
 ```{r, echo = T, eval = F}
-cleancorpus <- tm_map(corpus, stripWhitespace)
+stripcorpus <- tm_map(corpus, stripWhitespace)
 
-cleancorpus[[3]]$content # What happened to Simmel?
+stripcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-cleancorpus <- tm_map(corpus, stripWhitespace)
+stripcorpus <- tm_map(corpus, stripWhitespace)
 
-cleancorpus[[3]]$content # What happened to Simmel?
+stripcorpus[[3]]$content # What happened to Simmel?
 ```
 ---
 # Preprocessing - managing stopwords (1/2)
 ```{r, echo = T, eval = F}
-stopwords("en")
-
-stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
-
 mystopwords <- c("something", "can", "must", "since")
+
+stopwords("en")
 ```
 
 ```{r}
-stopwords("en")
-
-stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
-
 mystopwords <- c("something", "can", "must", "since")
+
+stopwords("en")
 ```
 ---
 # Preprocessing - managing stopwords (2/2)
 ```{r, echo = T, eval = F}
+stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
 stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
 
 stopcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
+stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
 stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
 
 stopcorpus[[3]]$content # What happened to Simmel?
@@ -186,16 +187,16 @@ stopcorpus[[3]]$content # What happened to Simmel?
 # Preprocessing - stemming
 ```{r, echo = T, eval = F}
 library(SnowballC) # Package for stemming
-cleancorpus <- tm_map(corpus, stemDocument)
+stemcorpus <- tm_map(corpus, stemDocument)
 
-cleancorpus[[3]]$content # What happened to Simmel?
+stemcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
 library(SnowballC) # Package for stemming
-cleancorpus <- tm_map(corpus, stemDocument)
+stemcorpus <- tm_map(corpus, stemDocument)
 
-cleancorpus[[3]]$content # What happened to Simmel?
+stemcorpus[[3]]$content # What happened to Simmel?
 ```
 ---
 # Applying all preprocessing tasks
@@ -241,44 +242,44 @@ cleandtm <- DocumentTermMatrix(corpus, #Generate and preprocessing a dtm from th
                                               stopwords = TRUE,
                                               stemming = TRUE))
 
-inspect(cleandtm) #Inspect dtm
-```
----
-# Creating dicionaries
-```{r, echo = T, eval = F}
-inspect(DocumentTermMatrix(corpus, list(dictionary=c("sociology","structure","action")))) #dictionary
-```
-
-```{r}
-inspect(DocumentTermMatrix(corpus, list(dictionary=c("sociology","structure","action")))) #dictionary
+inspect(dtm) #Inspect dtm
 ```
 ---
 # Operating a dtm - terms per corpus
 ```{r, echo = T, eval = F}
-findFreqTerms(cleandtm, 4) # find terms appearing at least 4 times
+findFreqTerms(dtm, 4) # find terms appearing at least 4 times
 ```
 
 ```{r}
-findFreqTerms(cleandtm, 4) # find terms appearing at least 4 times
+findFreqTerms(dtm, 4) # find terms appearing at least 4 times
 ```
 ---
 # Operating a dtm - terms per doc
 ```{r, echo = T, eval = F}
-findMostFreqTerms(cleandtm) # find most frequent terms for each document
+findMostFreqTerms(dtm) # find most frequent terms for each document
 ```
 
 ```{r}
-findMostFreqTerms(cleandtm)
+findMostFreqTerms(dtm)
 ```
 
 ---
 # Operating a dtm - term correlations
 ```{r, echo = T, eval = F}
-findAssocs(cleandtm, terms = "social", corlimit = 0.6) # terms correlating to a specific word
+findAssocs(dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
 ```
 
 ```{r}
-findAssocs(cleandtm, terms = "social", corlimit = 0.6) # terms correlating to a specific word
+findAssocs(dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
+```
+---
+# Creating dicionaries
+```{r, echo = T, eval = F}
+inspect(DocumentTermMatrix(cleancorpus, list(dictionary=c("sociolog","interact","social")))) #dictionary
+```
+
+```{r}
+inspect(DocumentTermMatrix(cleancorpus, list(dictionary=c("sociolog","interact","social")))) #dictionary
 ```
 ---
 # BONUS: From dtm to word cloud
