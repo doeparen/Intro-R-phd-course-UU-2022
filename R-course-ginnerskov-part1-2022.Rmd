@@ -1,0 +1,46 @@
+---
+title: "Text analysis I: Text mining concepts"
+subtitle: "Introduction to R for Social Sciences (Sociology ∞ HERO)"
+author: 
+- "Josef Ginnerskov, doctoral candidate"
+# Uncomment the line below for adding more authors
+#- "Another Author"
+institute: "Department of Sociology"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    self_contained: true # This allows to use the html file without copying all files.
+    lib_dir: libs
+    css: ["./resources/css/uppsala.css", "./resources/css/uppsala-fonts.css"]
+    includes:
+      in_header: "./libs/partials/header.html"
+#      after_body: "./resources/html/insert-logo.html"
+    nature:
+      beforeInit: ["./resources/js/macro.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: "16:9" # If you change it to 4:3, open insert-logo.html to fix the watermark position.
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F,
+                      dpi = 600,
+                      fig.asp = 0.5, # You may change these parameters for each chunk as needed.
+                      fig.align="center",
+                      out.width = "80%")
+
+library(tidyverse)
+
+
+
+#For exporting as pdf, run 'pagedown::chrome_print('html')' in the console, where 'html' is the name of html file to be exported as pdf (in this case, 'template.html').
+
+```
+
+```{r, echo = T, eval = F}
+
+```
+
+---
