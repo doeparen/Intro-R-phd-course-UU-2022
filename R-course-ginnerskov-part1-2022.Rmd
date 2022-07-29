@@ -39,8 +39,40 @@ library(tidyverse)
 
 ```
 
-```{r, echo = T, eval = F}
+---
 
-```
+# Slide with Two Columns
+.pull-left[
+## Building blocks -->
+
+- Document
+- Term, word and token
+- Ngram (unigram, bigram, trigram...)
+- POS (part-of-speech)
+
+]
+
+.pull-right[
+## <-- Buildings
+
+- Corpus
+- Lexicon
+- Document-Term-Matrix (DTM or TDM or DFM)
+
+]
+
 
 ---
+class: title-slide-final, middle
+background-image: url(./resources/pictures/watermark.png)
+background-size: 10%
+background-position: 11% 15%
+# This is the final slide.
+
+## You can add your email, twitter, github, etc. info here
+
+|                                                                                              |                          |
+|:---------------------------------------------------------------------------------------------|:-------------------------|
+| <a href="mailto:joseph.casillas@rutgers.edu">.UUred[<i class="fa fa-paper-plane fa-fw"></i>] |pablo.lillo_cea@edu.uu.se |  
+| <a href="http://twitter.com/pablillocea">.UUred[<i class="fa fa-twitter fa-fw"></i>]         |@pablillocea              |
+| <a href="http://github.com/pablillocea">.UUred[<i class="fa fa-gitlab fa-fw"></i>]           |@pablillocea              |
