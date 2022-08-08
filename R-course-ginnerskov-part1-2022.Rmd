@@ -1,5 +1,5 @@
 ---
-title: "Text analysis I: Text mining concepts"
+title: "Text analysis I: A conceptual background"
 subtitle: "Introduction to R for Social Sciences (Sociology ∞ HERO)"
 author: 
 - "Josef Ginnerskov, doctoral candidate"
@@ -39,8 +39,202 @@ library(tidyverse)
 
 ```
 
-```{r, echo = T, eval = F}
+# Computational text analysis?
 
-```
+--
+
+1. New expression for quantitative text analysis (see also text mining)
+
+--
+
+2. Draws heavily on NLP (natural language processing), which is increasingly drawing on machine learning (a branch of AI)
+
+--
+
+3. Social scientists leveraging on tools generated in computer science, data science and linguistics (see also computational social science)
 
 ---
+
+# Call a spade a spade - or a shovel (1/3)
+## Documents
+--
+
+1. Book, article, post, message ... = __document__
+
+--
+
+2. Document + document = __corpus__ (or data set)
+
+--
+
+3. Corpus + corpus = __corpora__ (or data sets)
+
+---
+
+# Call a spade a spade - or a shovel (2/3)
+## Words
+--
+
+1. Combinations of letters = __words__ or __terms__ or __tokens__ or __features__ or __n-grams__
+
+--
+
+2. N-grams include __unigrams__ (e.g. horse), __bigrams__ (e.g. cultural capital) and __trigrams__ (e.g. social media trolls)
+
+--
+
+3. Common "set of words" types: __dictionary__ (e.g. your corpus' words), __stop words__ (insignificant words to exclude from the data), and __lexicons__ ([pre-made] word lists for categorizing your dictionary needed for particular tasks)
+
+---
+
+# Call a spade a spade - or a shovel (3/3)
+## Representations
+
+--
+
+1a. __Bag-of-words__ (analyzing your words stripped of their placement in each document)
+
+--
+
+1b. __DTM__ (document-term matrix) or __DFM__ (document-feature matrix), __tidy text tibble__ (each row is a word) or __TF-IDF__ (term frequency-inverse document frequency)
+
+--
+
+2a. __Word vectors__ (including statistics on each words neighbors in the text)
+
+--
+
+2b. __Vector space__ (multi-dimensional representation of all words based on their co-occurrences)
+
+---
+
+# Turning text into data (1/2)
+## Access
+
+--
+
+1. Data from traditional methods (open answers in questionnaires, interview scripts, field notes ...)
+
+--
+
+2. Digitize physical texts (scan &rarr; OCR &rarr; encode &rarr; load into R)
+
+--
+
+3. Download from digital archives ( __Gutenberg__, Runeberg, Scopus, Web of science ...)
+
+--
+
+4. Scraping websites (e.g. social media platforms like Twitter and Reddit)
+
+---
+
+# Turning text into data (2/2)
+## Preprocess
+--
+
+Generate data set
+
+--
+
+1. Decide what documents make up your corpus and load the data
+
+--
+
+2. Add metadata (variables like author, publication year ...)
+
+--
+
+Tokenization
+
+--
+
+1. Remove what is not a word (remove: upper case, numbers, punctiation, white space...)
+
+--
+
+2. Decide what is a word (stemming, lemmatization, removing stop words )
+
+--
+
+3. Categorize words (Part-of-speech (POS) tagging, sentiment analysis...)
+
+---
+
+# Some text analysis task solvable with R
+
+--
+
+1. Global and local word occurrence counts (e.g. wordcloud)
+
+--
+
+2. Words specific for each text in relation to the corpus (e.g. tf-idf)
+
+--
+
+3. Relations between words (e.g. cluster analysis or co-occurrence network analysis)
+
+--
+
+4. Themes associated with each text (e.g. topic modeling)
+
+--
+
+5. Emotions in texts (sentiment analysis) 
+
+--
+
+6. The "meaning" of words (word embeddings)
+
+--
+
+7. The style of authors (stylometry)
+
+---
+
+# Some popular R packages for text analysis
+
+--
+
+- __tm__ (general text mining, corpus-based)
+
+--
+
+- __tidytext__ (R specific leveraging the tidy format)
+
+--
+
+- __quanteda__ (all-encompassing quantitative text analysis)
+
+--
+
+- __koRpus__ (preprocessing and general statistics for single texts)
+
+--
+
+- __udpipe__ and __opennlp__ (natural language processing toolkit)
+
+--
+
+- __text2vec__ (advance machine learning tasks like word embeddings)
+
+--
+
+- __stm__ (structural topic modeling), __lsa__ (latent semantic analysis) and __wordcloud__ (...wordclouds)
+
+--
+
+- __stylo__ (stylometric tasks like author attribution)
+
+---
+
+# Thank you for your time!
+
+## Do not hesitate to contact me
+
+|                                                                                              |                          |
+|:---------------------------------------------------------------------------------------------|:-------------------------|
+| <a href="mailto:josef.ginnerskov@soc.uu.se">.UUred[<i class="fa fa-paper-plane fa-fw"></i>] |josef.ginnerskov@soc.uu.se |  
+| <a href="http://twitter.com/doeparen">.UUred[<i class="fa fa-twitter fa-fw"></i>]         |@doeparen              |
+| <a href="http://github.com/doeparen">.UUred[<i class="fa fa-gitlab fa-fw"></i>]           |@doeparen              |
