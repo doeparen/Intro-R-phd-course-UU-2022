@@ -1,5 +1,5 @@
 /* Import my fonts */
- @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@300&display=swap&family=Fira+Sans+Compressed:ital,wght@0,400;0,500;0,800;1,400;1,500;1,800&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Mono:wght@300&display=swap&family=Fira+Sans+Compressed:ital,wght@0,400;0,500;0,800;1,400;1,500;1,800&display=swap');
 
 h1 {
   font-family: 'Fira Sans Compressed';
@@ -23,7 +23,7 @@ body {
 }
 
 .remark-code, .remark-inline-code { 
-  font-family: 'Fira Code', monospace;
+  font-family: 'Fira Mono', monospace;
 }
 
 .remark-code-line-highlighted     { background-color: #ffff88; }
