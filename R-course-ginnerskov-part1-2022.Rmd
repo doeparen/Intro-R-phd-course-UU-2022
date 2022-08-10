@@ -1,6 +1,6 @@
 ---
 title: "Text analysis I: A conceptual background"
-subtitle: "Introduction to R for Social Sciences (Sociology ∞ HERO)"
+subtitle: "Introduction to R for Social Sciences"
 author: 
 - "Josef Ginnerskov, doctoral candidate"
 # Uncomment the line below for adding more authors
@@ -55,6 +55,8 @@ library(tidyverse)
 
 ---
 
+4. Most common tasks are data exploration and data classification (e.g. what topics are 2000 sociology abstracts writing about based on their most frequent words or are these 362 IMBD reviews of "Sex and the City 2" mostly negative or positive based on their sentiments)
+
 # Call a spade a spade - or a shovel (1/3)
 ## Documents
 --
@@ -92,19 +94,27 @@ library(tidyverse)
 
 --
 
-1a. __Bag-of-words__ (analyzing your words stripped of their placement in each document)
+1a. The __bag-of-words model__ (words are stripped of their placement in sentences so that each document is reduced to a "bag" containing only word frequencies)
 
 --
 
-1b. __DTM__ (document-term matrix) or __DFM__ (document-feature matrix), __tidy text tibble__ (each row is a word) or __TF-IDF__ (term frequency-inverse document frequency)
+1b. The __document-term matrix__ aka __document-feature matrix__ (each row represents a document and each column a word) or the __tidy text tibble__ (each row has one column for the word and another for each document containing the word)
 
 --
 
-2a. __Word vectors__ (including statistics on each words neighbors in the text)
+1c. __Term frequency-inverse document frequency__ (a weighted matrix that intends to show how important words are to a document in relation to the other documents in a corpus)
 
 --
 
-2b. __Vector space__ (multi-dimensional representation of all words based on their co-occurrences)
+1d. __Topic modeling__ (an unsupervised machine learning technique to explore what topics are most relevant in a corpus; based on the idea that distinctly co-occurring words make up a  documents are)
+
+--
+
+2a. __Word vectors__ (includes statistics on each words' neighbors in the text)
+
+--
+
+2b. __Vector space__ (through word vectors we can generate a multi-dimensional representation of all words based on their co-occurrences)
 
 ---
 

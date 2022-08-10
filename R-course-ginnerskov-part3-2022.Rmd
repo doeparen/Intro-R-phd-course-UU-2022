@@ -1,6 +1,6 @@
 ---
-title: "Text analysis II: Building a tidytext toolbox"
-subtitle: "Introduction to R for Social Sciences (Sociology ∞ HERO)"
+title: "Text analysis III: Building a tidytext toolbox"
+subtitle: "Introduction to R for Social Sciences"
 author: 
 - "Josef Ginnerskov, doctoral candidate"
 # Uncomment the line below for adding more authors
@@ -207,7 +207,7 @@ words_sociology_work %>% filter (n >= 333) %>%
    coord_flip()
 ```
 ---
-# Comparing books via td-idf
+# Comparing books via tf-idf
 
 ```{r, echo = T, eval = F}
 sociology_tf_idf <- tidy_sociology %>%
@@ -230,7 +230,7 @@ sociology_tf_idf <- tidy_sociology %>%
 sociology_tf_idf
 ```
 ---
-# Viz books via td-idf (a)
+# Viz books via tf-idf (a)
 
 ```{r, echo = T, eval = F}
 sociology_tf_idf %>%
@@ -243,7 +243,7 @@ sociology_tf_idf %>%
     theme(strip.text=element_text(size=11))
 ```
 ---
-# Viz books via td-idf (b)
+# Viz books via tf-idf (b)
 
 ```{r}
 sociology_tf_idf %>%
@@ -278,7 +278,7 @@ cors_sociology
 ```
 ---
 
-# Word correlations -> word graph
+# Prepare the word correlations for viz
 ```{r, echo = T, eval = F}
 library(igraph)
 set.seed(1234)

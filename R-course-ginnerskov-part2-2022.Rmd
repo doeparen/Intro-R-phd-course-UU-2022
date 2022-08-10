@@ -1,6 +1,6 @@
 ---
 title: "Text analysis II: Commending the tm package"
-subtitle: "Introduction to R for Social Sciences (Sociology ∞ HERO)"
+subtitle: "Introduction to R for Social Sciences"
 author: 
 - "Josef Ginnerskov, doctoral candidate"
 # Uncomment the line below for adding more authors
@@ -201,21 +201,23 @@ stemcorpus[[3]]$content # What happened to Simmel?
 ---
 # Applying all preprocessing tasks
 ```{r, echo = T, eval = F}
-cleancorpus <- tm_map(corpus, content_transformer(tolower))
-cleancorpus <- tm_map(cleancorpus, removePunctuation)
-cleancorpus <- tm_map(cleancorpus, removeWords, stopwords("en"))
-cleancorpus <- tm_map(cleancorpus, stemDocument)
-cleancorpus <- tm_map(cleancorpus, stripWhitespace)
+cleancorpus <- corpus %>%
+  tm_map(content_transformer(tolower)) %>%
+  tm_map(removePunctuation, preserve_intra_word_dashes = TRUE)  %>%
+  tm_map(removeWords, stopwords("en")) %>%
+  tm_map(stemDocument) %>%
+  tm_map(stripWhitespace)
 
 cleancorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-cleancorpus <- tm_map(corpus, content_transformer(tolower))
-cleancorpus <- tm_map(cleancorpus, removePunctuation)
-cleancorpus <- tm_map(cleancorpus, removeWords, stopwords("en"))
-cleancorpus <- tm_map(cleancorpus, stemDocument)
-cleancorpus <- tm_map(cleancorpus, stripWhitespace)
+cleancorpus <- corpus %>%
+  tm_map(content_transformer(tolower)) %>%
+  tm_map(removePunctuation, preserve_intra_word_dashes = TRUE)  %>%
+  tm_map(removeWords, stopwords("en")) %>%
+  tm_map(stemDocument) %>%
+  tm_map(stripWhitespace)
 
 cleancorpus[[3]]$content # What happened to Simmel?
 ```
