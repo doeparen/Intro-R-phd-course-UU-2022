@@ -53,7 +53,7 @@ library(tidyverse)
 
 3. Social scientists leveraging on tools generated in computer science, data science and linguistics (see also computational social science)
 
----
+--
 
 4. Most common tasks are data exploration and data classification (e.g. what topics are 2000 sociology abstracts writing about based on their most frequent words or are these 362 IMBD reviews of "Sex and the City 2" mostly negative or positive based on their sentiments)
 
@@ -85,7 +85,7 @@ library(tidyverse)
 
 --
 
-3. Common "set of words" types: __dictionary__ (e.g. your corpus' words), __stop words__ (insignificant words to exclude from the data), and __lexicons__ ([pre-made] word lists for categorizing your dictionary needed for particular tasks)
+3. Common "set of words" types: __vocabulary__ (i.e. all words occurring in your corpus), __dictionary__ (e.g. a set of words of interest for your analysis), __stop words__ (insignificant words to exclude from the data), and __lexicons__ ([pre-made] word lists for categorizing your vocabulary needed for particular tasks)
 
 ---
 
@@ -94,7 +94,7 @@ library(tidyverse)
 
 --
 
-1a. The __bag-of-words model__ (words are stripped of their placement in sentences so that each document is reduced to a "bag" containing only word frequencies)
+1a. The __bag-of-words model__ or __one-hot vectors__ (words are stripped of their placement in sentences so that each document is reduced to a "bag" containing only word frequencies)
 
 --
 
@@ -110,7 +110,7 @@ library(tidyverse)
 
 --
 
-2a. __Word vectors__ (includes statistics on each words' neighbors in the text)
+2a. __Word embeddings__ (include statistics on each words' neighbors in the text, i.e. the words are embedded in the text)
 
 --
 
