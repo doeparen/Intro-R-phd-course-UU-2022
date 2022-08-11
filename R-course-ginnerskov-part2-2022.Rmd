@@ -2,7 +2,7 @@
 title: "Text analysis II: Commending the tm package"
 subtitle: "Introduction to R for Social Sciences"
 author: 
-- "Josef Ginnerskov, doctoral candidate"
+- "Josef Ginnerskov"
 # Uncomment the line below for adding more authors
 #- "Another Author"
 institute: "Department of Sociology"

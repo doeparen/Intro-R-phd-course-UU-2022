@@ -2,7 +2,7 @@
 title: "Text analysis I: A conceptual background"
 subtitle: "Introduction to R for Social Sciences"
 author: 
-- "Josef Ginnerskov, doctoral candidate"
+- "Josef Ginnerskov"
 # Uncomment the line below for adding more authors
 #- "Another Author"
 institute: "Department of Sociology"
@@ -239,11 +239,15 @@ Tokenization
 
 --
 
-- __text2vec__ (advance machine learning tasks like word embeddings)
+- __text2vec__ (advance machine learning tasks like word embeddedings)
 
 --
 
-- __stm__ (structural topic modeling), __lsa__ (latent semantic analysis) and __wordcloud__ (...wordclouds)
+- __topicmodels__, __stm__ and __lsa__ (packages for finding latent topics)
+
+--
+
+- __wordcloud__ (...wordclouds)
 
 --
 
