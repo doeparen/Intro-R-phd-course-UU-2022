@@ -71,7 +71,7 @@ Soctxt.raw <- c(Durkheim = "Sociological method as we practice it rests wholly o
 ---
 # Creating a corpus (vector source)
 ```{r, echo = T, eval = F}
-library(tm) #Package for text mining tasks
+library(tm) # package for general text mining tasks
 Soctxt.corp <- VCorpus(VectorSource(Soctxt.raw)) # create a volatile corpus, kept in memory as a R object.
 inspect(Soctxt.corp)
 ```
