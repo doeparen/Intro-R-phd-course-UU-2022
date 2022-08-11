@@ -37,170 +37,234 @@ library(tidyverse)
 
 ```
 
-# Loading books from www.gutenberg.org
-```{r, echo = T, eval = F}
-library(gutenbergr)
-
-sociology_raw <- gutenberg_download(c(41360, 46423, 13205, 30610, 6568, 21609), 
-                                    meta_fields = c("author", "title"), strip = TRUE)
-head(sociology_raw)
-```
-
-```{r}
-library(gutenbergr)
-
-sociology_raw <- gutenberg_download(c(41360, 46423, 13205, 30610, 6568, 21609), # Ellwood, Durkheim, Marx
-                                    meta_fields = c("author", "title"), strip = TRUE)
-head(sociology_raw)
-```
 ---
-# Preprocessing - fix awkward signs
+# Today's outline
+
+1. A conceptual background to (computational) text analysis in R
+
+2. Basic text analysis tasks performed on vector strings following the logic of the tm package 
+
+3. __More advance text analysis tasks conducted on digitized books based on the tidytext package__
+
+4. Individually solving the problem set by building your own Gutenberg corpus
+---
+
+# Loading books from www.gutenberg.org (1/4)
+GutenbergR is a package that lets us harvest the many fruits of the digital archive www.gutenberg.org as full texts with metadata. 
 ```{r, echo = T, eval = F}
-sociology_raw$text <- gsub("_","",as.character(sociology_raw$text))
-sociology_raw$text <- gsub("--"," ",as.character(sociology_raw$text))
+library(tidyverse) # load the familiar tidyverse package
+library(gutenbergr) # loading the Gutenberg R package
+
+gutenberg_metadata # a tibble of the 51 k works with 8 metadata
+gutenberg_authors # a tibble of the 16 k authors with 7 metadata 
+gutenberg_works() # a tibble of the 40 k English works with 8 metadata
+
+gutenberg_works(author == "Dostoyevsky, Fyodor") # filter for only English translations of Dostoyevsky
+
+```
+
+--
+
+```{r}
+library(tidyverse) # load the familiar tidyverse package
+library(gutenbergr) # loading the Gutenberg R package
+
+gutenberg_works(author == "Dostoyevsky, Fyodor") # filter for only works by Dostoyevsky
+```
+
+---
+
+# Loading books from www.gutenberg.org (2/4)
+To engage in text analysis, we need to build ourselves a test corpus. The code below is set to download six sociology books from www.gutenberg.org.
+```{r, echo = T, eval = F}
+Socbooks.raw <- gutenberg_download(c(41360, 46423, 13205, 30610, 6568, 21609), # downloading books by id (Durkheim, Marx, Geddes, Blackmar, Ellwood and Rowe)
+                                   mirror = "http://mirrors.xmission.com/gutenberg/",# when loading several books at once you might need to state a proper mirror...
+                                   meta_fields = c("author", "title"), strip = TRUE) # include author and title metadata; "strip" entails keeping only the main book text
+
+head(Socbooks.raw) # let's see what we got
 ```
 
 ```{r}
-sociology_raw$text <- gsub("--"," ",as.character(sociology_raw$text))
-sociology_raw$text <- gsub("_","",as.character(sociology_raw$text))
+Socbooks.raw <- gutenberg_download(c(41360, 46423, 13205, 30610, 6568, 21609), # downloading books by id (Durkheim, Marx, Geddes, Blackmar, Ellwood and Rowe)
+                                   mirror = "http://mirrors.xmission.com/gutenberg/", # for many books you might need to state a proper mirror...
+                                    meta_fields = c("author", "title"), strip = TRUE) # include author and title metadata; "strip" entails keeping only the main book texthead(Socbooks.raw)
+head(Socbooks.raw) # let's see what we got
+```
+
+---
+
+# Loading books from www.gutenberg.org (3/4)
+A first feeling for the volume of the books before proceeding with the tidytext package.
+```{r, echo = T, eval = F}
+Socbooks.raw %>% # yay, we can pipe it
+  count(title) # counting how many rows that are in each book
+```
+
+```{r}
+Socbooks.raw %>%
+  count(title)
+```
+
+---
+# Loading books from www.gutenberg.org (4/4)
+Unfortunately, there are often a lot of unwanted signs in old books that will mess up the text analysis and thus need to be removed pronto.
+```{r, echo = T, eval = F}
+
+Socbooks.sub <- Socbooks.raw # to keep things in order we create an object for substituting odd signs
+
+Socbooks.sub$text <- gsub("_","",as.character(Socbooks.sub$text)) # substitute _ for nothing in the text column
+Socbooks.sub$text <- gsub("--"," ",as.character(Socbooks.sub$text)) # substitute -- for a blank space in the text column
+```
+
+```{r}
+Socbooks.sub <- Socbooks.raw # to keep things in order we create an object for substituting odd signs
+
+Socbooks.sub$text <- gsub("_","",as.character(Socbooks.sub$text)) # substitute _ for nothing in the text column
+Socbooks.sub$text <- gsub("--"," ",as.character(Socbooks.sub$text)) # substitute -- for a blank space in the text column
 ```
 ---
 
 # Turning books into a tidy tibble
+In this analysis, we are goind to work with tidytext, which is a package set out to make text analysis friendly for the tidyverse universe. This is great since we can then add on other tidyverse packages like ggplot2.
 ```{r, echo = T, eval = F}
-library(tidyverse)
-library(tidytext)
-tidy_sociology <- sociology_raw %>%
-    mutate(line = row_number()) %>%
-    unnest_tokens(word, text)
-
-head(tidy_sociology)
+library(tidytext) # load tidytext
+Socbooks.tidy <- Socbooks.sub %>% # we work with the substituted corpus
+    mutate(line = row_number()) %>% # by mutating, we can keep information on what line a word resides
+    unnest_tokens(word, text) # turning the book into a tall tibble where each word or token makes up a row (also preprocesses)
+                              # can be modified to split by n-grams, sentences, lines, paragraphs, tweets...
+head(Socbooks.tidy) # so, what happend?
 ```
 
 ```{r}
-library(tidyverse)
 library(tidytext)
-tidy_sociology <- sociology_raw %>%
+Socbooks.tidy <- Socbooks.sub %>%
     mutate(line = row_number()) %>%
     unnest_tokens(word, text)
 
-head(tidy_sociology)
+head(Socbooks.tidy)
 ```
 ---
 # Removing stop words
+For most text analysis tasks, words that are too common do not only hold no meaning but are disruptive and cause an obstacle for performing the methods. 
 ```{r, echo = T, eval = F}
-tidy_sociology <- tidy_sociology %>%
-  anti_join(stop_words)
+Socbooks.tidy.stop <- Socbooks.tidy %>% # tidytext comes with its own list "stop_words" that in most cases works great
+  anti_join(stop_words) # anti_join from dplyr can be used to remove these words
 
-my_words <- tibble(word = c("p", "cit", "tr", "pp", "ff", "nat", "ibid", "geddes", "prof", "per"))
+Socbooks.stop.words <- tibble(word = # as expected, some academic slang ought to be removed as well
+                                c("p", "cit", "tr", "pp", "ff", "nat", "ibid", "geddes", "prof", "per"))
 
-tidy_sociology <- tidy_sociology %>%
-  anti_join(my_words)
+Socbooks.tidy.stop <- Socbooks.tidy.stop %>% # remove your own set of stop words from the filtered tibble
+  anti_join(Socbooks.stop.words)
 ```
 
 ```{r}
-tidy_sociology <- tidy_sociology %>%
+Socbooks.tidy.stop <- Socbooks.tidy %>%
   anti_join(stop_words)
 
-my_words <- tibble(word = c("p", "cit", "tr", "pp", "ff", "nat", "ibid", "geddes", "prof", "per"))
+Socbooks.stop.words <- tibble(word = c("p", "cit", "tr", "pp", "ff", "nat", "ibid", "geddes", "prof", "per"))
 
-tidy_sociology <- tidy_sociology %>%
-  anti_join(my_words)
+Socbooks.tidy.stop <- Socbooks.tidy.stop %>%
+  anti_join(Socbooks.stop.words)
 ```
 
 ---
 # Basic global/corpus count
+With our tidy corpus at hand we can begin the analysis. Let's look at the top words for the corpus.
 ```{r, echo = T, eval = F}
-tidy_sociology %>%
+Socbooks.tidy.stop %>%
+    count(word, sort = TRUE) %>% # we count the words and sort the counts from high to low
+    top_n(10) # since this will be overwhelming we only look at the top 10
+```
+
+```{r}
+Socbooks.tidy.stop %>%
     count(word, sort = TRUE) %>%
     top_n(10)
 ```
 
+---
+# Generating a word cloud (1/2)
+In the previous lecture, we saw that word clouds can bring some visual insights into the data, so why don't we generate a word cloud for the whole corpus?
+```{r, echo = T, eval = F}
+library(wordcloud) # there is a specific package for word clouds - load it!
+
+Socbooks.tidy.stop %>% # piping the clean tibble
+  count(word) %>% # count all words
+  with(wordcloud(word, n, # adding on the base R command "with"
+                 max.words = 100, # limit the cloud to 100 words
+                 colors = brewer.pal(8, "Dark2"))) # add our favorite color palette
+```
+---
+# Generating a word cloud (2/2)
 ```{r}
-tidy_sociology %>%
-    count(word, sort = TRUE) %>%
-    top_n(10)
+library(wordcloud)
+
+Socbooks.tidy.stop %>%
+  count(word) %>%
+  with(wordcloud(word, n, 
+                 max.words = 100, 
+                 colors = brewer.pal(8, "Dark2")))
 ```
 
 ---
 # Basic local/document count
+Often you would quickly want to move from the global corpus level to the local document level. We can do the same count as previously but filter for a specific book or author and so on.
 ```{r, echo = T, eval = F}
-tidy_sociology %>%
-    filter(author == "Marx, Karl") %>%
-    count(word, sort = TRUE) %>%
-    top_n(10)
+Socbooks.tidy.stop %>%
+    filter(author == "Marx, Karl") %>% # filter by author, specifically Marx
+    count(word, sort = TRUE) %>% # again, count words and sort from high to low
+    top_n(10) # only the top 10
 ```
 
 ```{r}
-tidy_sociology %>%
+Socbooks.tidy.stop %>%
     filter(author == "Marx, Karl") %>%
     count(word, sort = TRUE) %>%
     top_n(10)
-```
-
----
-# Generating a word cloud (a)
-
-```{r, echo = T, eval = F}
-library(wordcloud)
-
-tidy_sociology %>%
-  count(word) %>%
-  with(wordcloud(word, n, 
-                 max.words = 100, 
-                 colors = brewer.pal(8, "Dark2")))
-```
----
-# Generating a word cloud (b)
-```{r}
-library(wordcloud)
-
-tidy_sociology %>%
-  count(word) %>%
-  with(wordcloud(word, n, 
-                 max.words = 100, 
-                 colors = brewer.pal(8, "Dark2")))
 ```
 
 ---
 # Comparing word occurences per book
+The next natural step is to compare the books. With the code below we can check out the most frequently used words book by book. 
 ```{r, echo = T, eval = F}
-words_sociology <- tidy_sociology %>%
-  count(author, word, sort = TRUE)
+Socbooks.words <- Socbooks.tidy.stop %>% # we will need to store a separate object with the counts
+  count(author, word, sort = TRUE) # including all words and the number of times each author have used them
 
-words_sociology_work <- words_sociology %>% 
-  group_by(author) %>% 
-  summarize(total = sum(n))
+Socbooks.word.count <- Socbooks.words %>% # also a separate object with the total words for each work
+  group_by(author) %>% # first group by author
+  summarize(total = sum(n)) # second summarize the total word could
 
-words_sociology_work <- left_join(words_sociology_work, words_sociology)
+Socbooks.word.count <- left_join(Socbooks.word.count, Socbooks.words) # finally join the words by author with the total words of each author
 ```
 
 ```{r}
-words_sociology <- tidy_sociology %>%
+Socbooks.words <- Socbooks.tidy.stop %>%
   count(author, word, sort = TRUE)
 
-words_sociology_work <- words_sociology %>% 
+Socbooks.word.count <- Socbooks.words %>% 
   group_by(author) %>% 
   summarize(total = sum(n))
 
-words_sociology_work <- left_join(words_sociology, words_sociology_work)
+Socbooks.word.count <- left_join(Socbooks.word.count, Socbooks.words)
 
-words_sociology_work
+Socbooks.word.count
 ```
 ---
-# Viz word occurences per book (a)
+# Viz word occurences per book (1/2)
+Let us visualize the scores with the help of the ggplot2 package.
 ```{r, echo = T, eval = F}
-words_sociology_work %>% filter (n >= 333) %>% 
-   mutate(word = reorder(word, n)) %>% 
-   ggplot(aes(x = word, y = n, fill = author)) + 
-   geom_col() + 
-   coord_flip()
+Socbooks.word.count %>%
+   filter (n >= 333) %>% # filter so that only the 333 most used words are shown
+   mutate(word = reorder(word, n)) %>% # reorder by word after the highest count "n"
+   ggplot(aes(x = word, y = n, fill = author)) + # plot with the word in x, count in y and fill by author
+   geom_col() + # bar chart where the heights of the bars represent the data values
+   coord_flip() # since y is conditional on x, we can flip them for the sake of interpretation
 ```
 ---
-# Viz word occurences per book (b)
+# Viz word occurences per book (2/2)
 
 ```{r}
-words_sociology_work %>% filter (n >= 333) %>% 
+Socbooks.word.count %>% filter (n >= 333) %>% 
    mutate(word = reorder(word, n)) %>% 
    ggplot(aes(x = word, y = n, fill = author)) + 
    geom_col() + 
@@ -208,45 +272,45 @@ words_sociology_work %>% filter (n >= 333) %>%
 ```
 ---
 # Comparing books via tf-idf
-
+To get a better idea of which words are the most distinct for each book in relation to the overall corpus, term frequency-inverse document frequency always comes in handy.
 ```{r, echo = T, eval = F}
-sociology_tf_idf <- tidy_sociology %>%
+Socbooks.tfidf <- Socbooks.tidy.stop %>% # new object storing the tf-idf statistics
+    count(author, word, sort = TRUE) %>% # count words by author and sort the results
+    bind_tf_idf(word, author, n) %>% # this tidytext function runs the tf-idf by word, author and counts (n)
+    arrange(-tf_idf) %>% # orders the rows of by the values of the tf-idf score
+    group_by(author) %>% # group the results by author
+    top_n(15) %>% # keep only the top 15 words for each document
+    ungroup() # ungroup the author grouping
+```
+
+```{r}
+Socbooks.tfidf <- Socbooks.tidy.stop %>%
     count(author, word, sort = TRUE) %>%
     bind_tf_idf(word, author, n) %>%
     arrange(-tf_idf) %>%
     group_by(author) %>%
     top_n(15) %>%
-    ungroup
-```
-
-```{r}
-sociology_tf_idf <- tidy_sociology %>%
-    count(author, word, sort = TRUE) %>%
-    bind_tf_idf(word, author, n) %>%
-    arrange(-tf_idf) %>%
-    group_by(author) %>%
-    top_n(15) %>%
-    ungroup
-sociology_tf_idf
+    ungroup()
+Socbooks.tfidf
 ```
 ---
-# Viz books via tf-idf (a)
-
+# Viz books via tf-idf (1/2)
+To facilitate our ability to interpret the results, it might be a good idea to visualize the tf-idf scores.  
 ```{r, echo = T, eval = F}
-sociology_tf_idf %>%
-    mutate(word = reorder_within(word, tf_idf, author)) %>%
-    ggplot(aes(word, tf_idf, fill = author)) +
-    geom_col(alpha = 0.8, show.legend = FALSE) +
-    facet_wrap(~ author, scales = "free", ncol = 3) +
-    scale_x_reordered() +
-    coord_flip() +
-    theme(strip.text=element_text(size=11))
+Socbooks.tfidf %>%
+    mutate(word = reorder_within(word, tf_idf, author)) %>% # mutate and reorder by the words and their tf-idf scores by author
+    ggplot(aes(word, tf_idf, fill = author)) + # the words as x and tf-idf socre as y, fill by author
+    geom_col(alpha = 0.8, show.legend = FALSE) + # a bar chart; let's set the opacity (alpha) to 80% and drop the legend since we do not need it
+    facet_wrap(~ author, scales = "free", ncol = 3) + # to fit the plot within the screen space, we wrap by author in three free scaled columns
+    scale_x_reordered() + # we order the x axis along the facets defined in the facet_wrap
+    coord_flip() + # again, flip x and y for the sake of interpretation
+    theme(strip.text=element_text(size=11)) # add a nicer sized font
 ```
 ---
-# Viz books via tf-idf (b)
+# Viz books via tf-idf (2/2)
 
 ```{r}
-sociology_tf_idf %>%
+Socbooks.tfidf %>%
     mutate(word = reorder_within(word, tf_idf, author)) %>%
     ggplot(aes(word, tf_idf, fill = author)) +
     geom_col(alpha = 0.8, show.legend = FALSE) +
@@ -261,7 +325,7 @@ sociology_tf_idf %>%
 
 ```{r, echo = T, eval = F}
 library(widyr)
-cors_sociology <- words_sociology_work %>% 
+Socbooks.word.corr <- Socbooks.word.count %>% # reuse the object for 
   group_by(word) %>%
   filter(n >= 250) %>%
   pairwise_cor(word, author, sort = TRUE, upper = FALSE)
@@ -269,12 +333,12 @@ cors_sociology <- words_sociology_work %>%
 
 ```{r}
 library(widyr)
-cors_sociology <- words_sociology_work %>% 
+Socbooks.word.corr <- Socbooks.word.count %>% 
   group_by(word) %>%
   filter(n >= 250) %>%
   pairwise_cor(word, author, sort = TRUE, upper = FALSE)
 
-cors_sociology
+Socbooks.word.corr
 ```
 ---
 
@@ -282,7 +346,7 @@ cors_sociology
 ```{r, echo = T, eval = F}
 library(igraph)
 set.seed(1234)
-g_keywords <- cors_sociology %>%
+Socbooks.word.corr.graph <- Socbooks.word.corr %>%
   filter(correlation > .3) %>%
   graph_from_data_frame()
 ```
@@ -290,32 +354,32 @@ g_keywords <- cors_sociology %>%
 ```{r}
 library(igraph)
 set.seed(1234)
-g_keywords <- cors_sociology %>%
+Socbooks.word.corr.graph <- Socbooks.word.corr %>%
   filter(correlation > .3) %>%
   graph_from_data_frame()
-g_keywords
+Socbooks.word.corr.graph
 ```
 
 ---
-# Viz the word graph (a)
+# Viz the word correlation graph (1/2)
 ```{r, echo = T, eval = F}
 library(ggraph)
-g_keywords %>% 
+Socbooks.word.corr.graph %>% 
   ggraph(layout = "fr") +
   geom_edge_link(aes(edge_alpha = correlation, edge_width = correlation), edge_colour = "orange") +
-  geom_node_point(size = 0.5*igraph::degree(g_keywords), colour = "lightblue") +
+  geom_node_point(size = 0.5*igraph::degree(Socbooks.word.corr.graph), colour = "lightblue") +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void()
 ```
 
 ---
-# Viz the word graph (b)
+# Viz the wordcorrelation graph (2/2)
 ```{r}
 library(ggraph)
-g_keywords %>% 
+Socbooks.word.corr.graph %>% 
   ggraph(layout = "fr") +
   geom_edge_link(aes(edge_alpha = correlation, edge_width = correlation), edge_colour = "orange") +
-  geom_node_point(size = 0.5*igraph::degree(g_keywords), colour = "lightblue") +
+  geom_node_point(size = 0.5*igraph::degree(Socbooks.word.corr.graph), colour = "lightblue") +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void()
 ```
@@ -324,44 +388,44 @@ g_keywords %>%
 # Preparing for topic modeling
 
 ```{r, echo = T, eval = F}
-sociology_dtm <- words_sociology_work %>%
+Socbooks.dtm <- Socbooks.word.count %>%
   cast_dtm(author, word, n)
 ```
 
 ```{r}
-sociology_dtm <- words_sociology_work %>%
+Socbooks.dtm <- Socbooks.word.count %>%
   cast_dtm(author, word, n)
 
-sociology_dtm
+Socbooks.dtm
 ```
 ---
 # Run a topic model
 ```{r, echo = T, eval = F}
 library(topicmodels)
-sociology_lda <- LDA(sociology_dtm, k = 4, control = list(seed = 1234))
+Socbooks.lda <- LDA(Socbooks.dtm, k = 4, control = list(seed = 1234))
 ```
 
 ```{r}
 library(topicmodels)
-sociology_lda <- LDA(sociology_dtm, k = 4, control = list(seed = 1234))
-sociology_lda
+Socbooks.lda <- LDA(Socbooks.dtm, k = 4, control = list(seed = 1234))
+Socbooks.lda
 ```
 ---
 # Inspecting the beta (word/topic prob)
 
 ```{r, echo = T, eval = F}
-sociology_topics <- tidy(sociology_lda, matrix = "beta")
+Socbooks.lda.beta <- tidy(Socbooks.lda, matrix = "beta")
 ```
 
 ```{r}
-sociology_topics <- tidy(sociology_lda, matrix = "beta")
-sociology_topics
+Socbooks.lda.beta <- tidy(Socbooks.lda, matrix = "beta")
+Socbooks.lda.beta
 ```
 ---
 # Top terms in topic model beta
 
 ```{r, echo = T, eval = F}
-top_terms <- sociology_topics %>%
+Socbooks.lda.beta.top10 <- Socbooks.lda.beta %>%
   group_by(topic) %>%
   slice_max(beta, n = 10) %>% 
   ungroup() %>%
@@ -369,12 +433,12 @@ top_terms <- sociology_topics %>%
 ```
 
 ```{r}
-top_terms <- sociology_topics %>%
+Socbooks.lda.beta.top10 <- Socbooks.lda.beta %>%
   group_by(topic) %>%
   slice_max(beta, n = 10) %>% 
   ungroup() %>%
   arrange(topic, -beta)
-top_terms
+Socbooks.lda.beta.top10
 ```
 ---
 # Viz topic model beta (a)
@@ -382,7 +446,7 @@ top_terms
 ```{r, echo = T, eval = F}
 library(ggplot2)
 
-top_terms %>%
+Socbooks.lda.beta.top10 %>%
   mutate(term = reorder_within(term, beta, topic)) %>%
   ggplot(aes(beta, term, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
@@ -395,7 +459,7 @@ top_terms %>%
 ```{r}
 library(ggplot2)
 
-top_terms %>%
+Socbooks.lda.beta.top10 %>%
   mutate(term = reorder_within(term, beta, topic)) %>%
   ggplot(aes(beta, term, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
@@ -406,18 +470,18 @@ top_terms %>%
 ---
 # Inspecting the gamma (doc/topic prob)
 ```{r, echo = T, eval = F}
-sociology_gamma <- tidy(sociology_lda, matrix = "gamma")
+Socbooks.lda.gamma <- tidy(Socbooks.lda, matrix = "gamma")
 ```
 
 ```{r}
-sociology_gamma <- tidy(sociology_lda, matrix = "gamma")
-sociology_gamma
+Socbooks.lda.gamma <- tidy(Socbooks.lda, matrix = "gamma")
+Socbooks.lda.gamma
 ```
 ---
 # Viz topic model gamma (a)
 
 ```{r, echo = T, eval = F}
-sociology_gamma %>%
+Socbooks.lda.gamma %>%
   mutate(document = reorder(document, gamma * topic)) %>%
   ggplot(aes(factor(topic), gamma)) +
   geom_boxplot() +
@@ -428,7 +492,7 @@ sociology_gamma %>%
 # Viz topic model gamma (b)
 
 ```{r}
-sociology_gamma %>%
+Socbooks.lda.gamma %>%
   mutate(document = reorder(document, gamma * topic)) %>%
   ggplot(aes(factor(topic), gamma)) +
   geom_boxplot() +
@@ -440,7 +504,7 @@ sociology_gamma %>%
 ```{r, echo = T, eval = F}
 bing <- get_sentiments("bing")
 
-tidy_sociology %>%
+Socbooks.tidy.stop %>%
   inner_join(bing) %>%
   count(word, sentiment, sort = TRUE) %>%
   top_n(10)
@@ -449,7 +513,7 @@ tidy_sociology %>%
 ```{r}
 bing <- get_sentiments("bing")
 
-tidy_sociology %>%
+Socbooks.tidy.stop %>%
   inner_join(bing) %>%
   count(word, sentiment, sort = TRUE) %>%
   top_n(10)
@@ -457,11 +521,11 @@ tidy_sociology %>%
 ---
 # Viz top sentiments (a)
 ```{r, echo = T, eval = F}
-sentiment_counts <- tidy_sociology %>%
+Socbooks.senti.count <- Socbooks.tidy.stop %>%
   inner_join(bing) %>%
   count(word, sentiment, sort = TRUE)
 
-sentiment_counts %>%
+Socbooks.senti.count %>%
   filter(n > 100) %>%
   mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
   mutate(word = reorder(word, n)) %>%
@@ -473,12 +537,12 @@ sentiment_counts %>%
 ---
 # Viz top sentiments (b)
 ```{r}
-sentiment_counts <- tidy_sociology %>%
+Socbooks.senti.count <- Socbooks.tidy.stop %>%
   inner_join(bing) %>%
   count(word, sentiment, sort = TRUE)
 
 
-sentiment_counts %>%
+Socbooks.senti.count %>%
   filter(n > 100) %>%
   mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
   mutate(word = reorder(word, n)) %>%
@@ -493,7 +557,7 @@ sentiment_counts %>%
 ```{r, echo = T, eval = F}
 library(tidyr)
 
-sentisociology <- tidy_sociology %>%
+Socbooks.senti.comp <- Socbooks.tidy.stop %>%
   inner_join(bing) %>%
   count(author, index = line %/% 100, sentiment) %>%
   spread(sentiment, n, fill = 0) %>%
@@ -503,7 +567,7 @@ sentisociology <- tidy_sociology %>%
 ```{r}
 library(tidyr)
 
-sentisociology <- tidy_sociology %>%
+Socbooks.senti.comp <- Socbooks.tidy.stop %>%
   inner_join(bing) %>%
   count(author, index = line %/% 100, sentiment) %>%
   spread(sentiment, n, fill = 0) %>%
@@ -513,7 +577,7 @@ sentisociology <- tidy_sociology %>%
 ```{r, echo = T, eval = F}
 library(ggplot2)
 
-ggplot(sentisociology, aes(index, sentiment, fill = author)) +
+ggplot(Socbooks.senti.comp, aes(index, sentiment, fill = author)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   facet_wrap(~author, ncol = 2, scales = "free_x")
 ```
@@ -523,7 +587,7 @@ ggplot(sentisociology, aes(index, sentiment, fill = author)) +
 ```{r}
 library(ggplot2)
 
-ggplot(sentisociology, aes(index, sentiment, fill = author)) +
+ggplot(Socbooks.senti.comp, aes(index, sentiment, fill = author)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   facet_wrap(~author, ncol = 2, scales = "free_x")
 ```

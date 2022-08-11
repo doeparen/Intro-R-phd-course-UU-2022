@@ -39,9 +39,21 @@ library(tidyverse)
 
 ```
 
+---
+# Today's outline
+
+1. A conceptual background to (computational) text analysis in R
+
+2. __Basic text analysis tasks performed on vector strings following the logic of the tm package__
+
+3. More advance text analysis tasks conducted on digitized books based on the tidytext package
+
+4. Individually solving the problem set by building your own Gutenberg corpus
+---
+
 # Loading character vector documents
 ```{r, echo = T, eval = F}
-vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly on the basic principle that social facts must be studied as things, that is, as realities external to the individual. There is no principle for which we have received more criticism; but none is more fundamental. Indubitably for sociology to be possible, it must above all have an object all its own. It must take cognizance of a reality which is not in the domain of other sciences... there can be no sociology unless societies exist, and that societies cannot exist if there are only individuals.", 
+Soctxt.raw <- c(Durkheim = "Sociological method as we practice it rests wholly on the basic principle that social facts must be studied as things, that is, as realities external to the individual. There is no principle for which we have received more criticism; but none is more fundamental. Indubitably for sociology to be possible, it must above all have an object all its own. It must take cognizance of a reality which is not in the domain of other sciences... there can be no sociology unless societies exist, and that societies cannot exist if there are only individuals.", 
                Weber = "'Sociology' is a word which is used in many different senses. In the sense adopted here, it means the science whose object is to interpret the meaning of social action and thereby give a causal explanation of the way in which the action proceeds and the effects which it produces. By 'action' in this definition is meant human behaviour when and to the extent that the agent of agents see it as subjectively meaningful: the behaviour may be either internal or external, and may consist in the agent's doing something, omitting to do something, or having something done to him. By 'social' action is meant an action in which the meaning intended by the agent or agents involves a relation to another person's behaviour and in which that relation determines the way in which the action proceeds.", 
                Simmel = "I UNDERSTAND the task of sociology to be description and determination of the historico-psychological origin of those forms in which interactions take place between human beings. The totality of these interactions, springing from the most diverse impulses, directed toward the most diverse objects, and aiming at the most diverse ends, constitutes 'society'. Those different contents in connection with which the forms of interaction manifest themselves are the subject-matter of special sciences. These contents attain the character of social facts by virtue of occurring in this particular form in the interactions of men.",
               Tarde = "I will pass over a number of secondary objections which the application of the sociological point of view may encounter along its way. Since, after all, the fundamental nature of things is strictly inaccessible, and we are obliged to construct hypotheses in order to penetrate it, let us openly adopt this one and push it to its conclusion. Hypotheses fingo, I say naively. What is dangerous in the sciences are not tightly linked conjectures, logically followed to the ultimate depths or the ultimate precipices, but rather the ghosts of ideas which float aimlessly in the mind. The universal sociological point of view seems to me to be one of these spectres which haunt the brains of our speculative contemporaries.")
@@ -49,7 +61,7 @@ vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly o
 ```
 
 ```{r}
-vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly on the basic principle that social facts must be studied as things, that is, as realities external to the individual. There is no principle for which we have received more criticism; but none is more fundamental. Indubitably for sociology to be possible, it must above all have an object all its own. It must take cognizance of a reality which is not in the domain of other sciences... there can be no sociology unless societies exist, and that societies cannot exist if there are only individuals.", 
+Soctxt.raw <- c(Durkheim = "Sociological method as we practice it rests wholly on the basic principle that social facts must be studied as things, that is, as realities external to the individual. There is no principle for which we have received more criticism; but none is more fundamental. Indubitably for sociology to be possible, it must above all have an object all its own. It must take cognizance of a reality which is not in the domain of other sciences... there can be no sociology unless societies exist, and that societies cannot exist if there are only individuals.", 
                Weber = "'Sociology' is a word which is used in many different senses. In the sense adopted here, it means the science whose object is to interpret the meaning of social action and thereby give a causal explanation of the way in which the action proceeds and the effects which it produces. By 'action' in this definition is meant human behaviour when and to the extent that the agent of agents see it as subjectively meaningful: the behaviour may be either internal or external, and may consist in the agent's doing something, omitting to do something, or having something done to him. By 'social' action is meant an action in which the meaning intended by the agent or agents involves a relation to another person's behaviour and in which that relation determines the way in which the action proceeds.", 
                Simmel = "I UNDERSTAND the task of sociology to be description and determination of the historico-psychological origin of those forms in which interactions take place between human beings. The totality of these interactions, springing from the most diverse impulses, directed toward the most diverse objects, and aiming at the most diverse ends, constitutes 'society'. Those different contents in connection with which the forms of interaction manifest themselves are the subject-matter of special sciences. These contents attain the character of social facts by virtue of occurring in this particular form in the interactions of men.",
               Tarde = "I will pass over a number of secondary objections which the application of the sociological point of view may encounter along its way. Since, after all, the fundamental nature of things is strictly inaccessible, and we are obliged to construct hypotheses in order to penetrate it, let us openly adopt this one and push it to its conclusion. Hypotheses fingo, I say naively. What is dangerous in the sciences are not tightly linked conjectures, logically followed to the ultimate depths or the ultimate precipices, but rather the ghosts of ideas which float aimlessly in the mind. The universal sociological point of view seems to me to be one of these spectres which haunt the brains of our speculative contemporaries.")
@@ -60,219 +72,218 @@ vectordata <- c(Durkheim = "Sociological method as we practice it rests wholly o
 # Creating a corpus (vector source)
 ```{r, echo = T, eval = F}
 library(tm) #Package for text mining tasks
-corpus <- VCorpus(VectorSource(vectordata)) # create a volatile corpus, kept in memory as a R object.
-inspect(corpus)
+Soctxt.corp <- VCorpus(VectorSource(Soctxt.raw)) # create a volatile corpus, kept in memory as a R object.
+inspect(Soctxt.corp)
 ```
 
 ```{r}
 library(tm) #Package for text mining tasks
 
-corpus <- VCorpus(VectorSource(vectordata)) # create a volatile corpus, kept in memory as a R object.
+Soctxt.corp <- VCorpus(VectorSource(Soctxt.raw)) # create a volatile corpus, kept in memory as a R object.
 
-inspect(corpus)
+inspect(Soctxt.corp)
 ```
 
 ---
 # Exporting corpus and importing txt
 ```{r, echo = T, eval = F}
-writeCorpus(corpus)
-dircorpus<-VCorpus(DirSource(pattern = ".txt")) #default is reading txt from wd
-inspect(dircorpus)
+writeCorpus(Soctxt.corp)
+Soctxt.dir <- VCorpus(DirSource(pattern = ".txt")) #default is reading txt from wd
+inspect(Soctxt.dir)
 ```
 
 ```{r}
-writeCorpus(corpus)
+writeCorpus(Soctxt.corp)
 
-dircorpus<-VCorpus(DirSource(pattern = ".txt")) ##default is reading plain texts from working directory, but can be specified, see getReaders(), e.g, VCorpus(DirSource("/User/Directory", pattern = "Das_Kapital"), readerControl = list(reader=readDOC, language="German"))
+Soctxt.dir <- VCorpus(DirSource(pattern = ".txt")) #default is reading plain texts from working directory, but can be specified, see getReaders(), e.g, VCorpus(DirSource("/User/Directory", pattern = "Das_Kapital"), readerControl = list(reader=readDOC, language="German"))
 
-inspect(dircorpus)
+inspect(Soctxt.dir)
 ```
 
 ---
 # Managing corpus metadata
 ```{r, echo = T, eval = F}
-meta(corpus) <- c("Durkheim", "Weber", "Simmel", "Tarde")
-meta(corpus)
+meta(Soctxt.corp) <- c("Durkheim", "Weber", "Simmel", "Tarde")
+meta(Soctxt.corp)
 
-meta(corpus[[1]], "author") <- "Durkheim"
-meta(corpus[[2]], "author") <- "Weber"
-meta(corpus[[3]], "author") <- "Simmel"
-meta(corpus[[4]], "author") <- "Tarde"
+meta(Soctxt.corp[[1]], "author") <- "Durkheim"
+meta(Soctxt.corp[[2]], "author") <- "Weber"
+meta(Soctxt.corp[[3]], "author") <- "Simmel"
+meta(Soctxt.corp[[4]], "author") <- "Tarde"
 
 meta(corpus[[3]])
 ```
 
 ```{r}
-meta(corpus) <- c("Durkheim", "Weber", "Simmel", "Tarde")
-meta(corpus)
+meta(Soctxt.corp) <- c("Durkheim", "Weber", "Simmel", "Tarde")
+meta(Soctxt.corp)
 
-meta(corpus[[1]], "author") <- "Durkheim"
-meta(corpus[[2]], "author") <- "Weber"
-meta(corpus[[3]], "author") <- "Simmel"
-meta(corpus[[4]], "author") <- "Tarde"
+meta(Soctxt.corp[[1]], "author") <- "Durkheim"
+meta(Soctxt.corp[[2]], "author") <- "Weber"
+meta(Soctxt.corp[[3]], "author") <- "Simmel"
+meta(Soctxt.corp[[4]], "author") <- "Tarde"
 
-meta(corpus[[3]])
+meta(Soctxt.corp[[3]])
 ```
 
 ---
 # Preprocessing - to lower case
 ```{r, echo = T, eval = F}
-lowcorpus <- tm_map(corpus, content_transformer(tolower))
+Soctxt.corp.low <- tm_map(Soctxt.corp, content_transformer(tolower))
 
-lowcorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.low[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-lowcorpus <- tm_map(corpus, content_transformer(tolower))
+Soctxt.corp.low <- tm_map(Soctxt.corp, content_transformer(tolower))
 
-lowcorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.low[[3]]$content # What happened to Simmel?
 ```
 ---
 # Preprocessing - remove punctuation
 ```{r, echo = T, eval = F}
-punctcorpus <- tm_map(corpus, removePunctuation)
+Soctxt.corp.punct <- tm_map(Soctxt.corp, removePunctuation)
 
-punctcorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.punct[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-punctcorpus <- tm_map(corpus, removePunctuation)
+Soctxt.corp.punct <- tm_map(Soctxt.corp, removePunctuation)
 
-punctcorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.punct[[3]]$content # What happened to Simmel?
 ```
 
 ---
 # Preprocessing - strip whitespace
 ```{r, echo = T, eval = F}
-stripcorpus <- tm_map(corpus, stripWhitespace)
+stripcorpus <- tm_map(Soctxt.corp, stripWhitespace)
 
 stripcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-stripcorpus <- tm_map(corpus, stripWhitespace)
+stripcorpus <- tm_map(Soctxt.corp, stripWhitespace)
 
 stripcorpus[[3]]$content # What happened to Simmel?
 ```
 ---
 # Preprocessing - managing stopwords (1/2)
 ```{r, echo = T, eval = F}
-mystopwords <- c("something", "can", "must", "since")
+Soctxt.stop.words <- c("something", "can", "must", "since")
 
 stopwords("en")
 ```
 
 ```{r}
-mystopwords <- c("something", "can", "must", "since")
+Soctxt.stop.words <- c("something", "can", "must", "since")
 
 stopwords("en")
 ```
 ---
 # Preprocessing - managing stopwords (2/2)
 ```{r, echo = T, eval = F}
-stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
-stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
 
-stopcorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.stop[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-stopcorpus <- tm_map(corpus, removeWords, stopwords("en"))
-stopcorpus <- tm_map(stopcorpus, removeWords, mystopwords)
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
 
-stopcorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.stop[[3]]$content # What happened to Simmel?
 ```
 ---
 
 # Preprocessing - stemming
 ```{r, echo = T, eval = F}
 library(SnowballC) # Package for stemming
-stemcorpus <- tm_map(corpus, stemDocument)
+stemcorpus <- tm_map(Soctxt.corp, stemDocument)
 
 stemcorpus[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
 library(SnowballC) # Package for stemming
-stemcorpus <- tm_map(corpus, stemDocument)
+stemcorpus <- tm_map(Soctxt.corp, stemDocument)
 
 stemcorpus[[3]]$content # What happened to Simmel?
 ```
 ---
 # Applying all preprocessing tasks
 ```{r, echo = T, eval = F}
-cleancorpus <- corpus %>%
+Soctxt.corp.clean <- Soctxt.corp %>%
   tm_map(content_transformer(tolower)) %>%
   tm_map(removePunctuation, preserve_intra_word_dashes = TRUE)  %>%
   tm_map(removeWords, stopwords("en")) %>%
   tm_map(stemDocument) %>%
   tm_map(stripWhitespace)
 
-cleancorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.clean[[3]]$content # What happened to Simmel?
 ```
 
 ```{r}
-cleancorpus <- corpus %>%
+Soctxt.corp.clean <- Soctxt.corp %>%
   tm_map(content_transformer(tolower)) %>%
   tm_map(removePunctuation, preserve_intra_word_dashes = TRUE)  %>%
   tm_map(removeWords, stopwords("en")) %>%
   tm_map(stemDocument) %>%
   tm_map(stripWhitespace)
 
-cleancorpus[[3]]$content # What happened to Simmel?
+Soctxt.corp.clean[[3]]$content # What happened to Simmel?
 ```
 
 ---
 # Generating a document-term matrix
 ```{r, echo = T, eval = F}
-dtm <- DocumentTermMatrix(cleancorpus) #Generate dtm from the preprocessed corpus
+Soctxt.dtm <- DocumentTermMatrix(Soctxt.corp.clean) #Generate dtm from the preprocessed corpus
 
-cleandtm <- DocumentTermMatrix(corpus, #Generate and preprocessing a dtm from the original corpus
+Soctxt.dtm.clean <- DocumentTermMatrix(Soctxt.corp.clean, #Generate and preprocessing a dtm from the original corpus
                                control = list(removePunctuation = TRUE, stripWhitespace = TRUE,
                                               removeSparseTerms = 0.99, stopwords = TRUE,
                                               stemming = TRUE))
-inspect(cleandtm) #Inspect dtm
+inspect(Soctxt.dtm) #Inspect dtm
 ```
 
 ```{r}
-dtm <- DocumentTermMatrix(cleancorpus) #Generate dtm from the preprocessed corpus
+Soctxt.dtm <- DocumentTermMatrix(Soctxt.corp.clean) #Generate dtm from the preprocessed corpus
 
-cleandtm <- DocumentTermMatrix(corpus, #Generate and preprocessing a dtm from the original corpus
-                               control = list(removePunctuation = TRUE,
+Soctxt.dtm.clean <- DocumentTermMatrix(Soctxt.corp.clean, #Generate and preprocessing a dtm from the original corpus
+                               control = list(removePunctuation = TRUE, 
                                               stripWhitespace = TRUE,
-                                              removeSparseTerms = 0.95,
+                                              removeSparseTerms = 0.99, 
                                               stopwords = TRUE,
                                               stemming = TRUE))
-
-inspect(dtm) #Inspect dtm
+inspect(Soctxt.dtm) #Inspect dtm
 ```
 ---
 # Operating a dtm - terms per corpus
 ```{r, echo = T, eval = F}
-findFreqTerms(dtm, 4) # find terms appearing at least 4 times
+findFreqTerms(Soctxt.dtm, 4) # find terms appearing at least 4 times
 ```
 
 ```{r}
-findFreqTerms(dtm, 4) # find terms appearing at least 4 times
+findFreqTerms(Soctxt.dtm, 4) # find terms appearing at least 4 times
 ```
 ---
 # Operating a dtm - terms per doc
 ```{r, echo = T, eval = F}
-findMostFreqTerms(dtm) # find most frequent terms for each document
+findMostFreqTerms(Soctxt.dtm) # find most frequent terms for each document
 ```
 
 ```{r}
-findMostFreqTerms(dtm)
+findMostFreqTerms(Soctxt.dtm)
 ```
 
 ---
 # Operating a dtm - term correlations
 ```{r, echo = T, eval = F}
-findAssocs(dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
+findAssocs(Soctxt.dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
 ```
 
 ```{r}
-findAssocs(dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
+findAssocs(Soctxt.dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
 ```
 ---
 # Creating dicionaries
@@ -287,9 +298,9 @@ inspect(DocumentTermMatrix(cleancorpus, list(dictionary=c("sociolog","interact",
 # BONUS: From dtm to word cloud
 ```{r, echo = T, eval = F}
 library(wordcloud) #Packge for generating wordclouds
-df <- as.matrix(dtm)
-df <- sort(colSums(df),decreasing=TRUE)
-df <- data.frame(word = names(df),freq=df)
+Soctxt.df <- as.matrix(Soctxt.dtm)
+Soctxt.df <- sort(colSums(Soctxt.df),decreasing=TRUE)
+Soctxt.df <- data.frame(word = names(Soctxt.df),freq=Soctxt.df)
 
 wordcloud(df$word,df$freq,colors = brewer.pal(12, "Dark2"))
 ```
@@ -297,9 +308,9 @@ wordcloud(df$word,df$freq,colors = brewer.pal(12, "Dark2"))
 # BONUS: From dtm to word cloud (viz)
 ```{r}
 library(wordcloud) #Packge for generating wordclouds
-df <- as.matrix(dtm)
-df <- sort(colSums(df),decreasing=TRUE)
-df <- data.frame(word = names(df),freq=df)
+Soctxt.df <- as.matrix(Soctxt.dtm)
+Soctxt.df <- sort(colSums(Soctxt.df),decreasing=TRUE)
+Soctxt.df <- data.frame(word = names(Soctxt.df),freq=Soctxt.df)
 
 wordcloud(df$word,df$freq,colors = brewer.pal(12, "Dark2"))
 ```
