@@ -39,7 +39,6 @@ library(tidyverse)
 
 ```
 
----
 # Today's outline
 
 1. __A conceptual background to (computational) text analysis in R__
@@ -68,6 +67,8 @@ library(tidyverse)
 --
 
 4. Most common tasks are data exploration and data classification (e.g. what topics are 2000 sociology abstracts writing about based on their most frequent words or are these 362 IMBD reviews of "Sex and the City 2" mostly negative or positive based on their sentiments)
+
+---
 
 # Call a spade a spade - or a shovel (1/3)
 ## Documents

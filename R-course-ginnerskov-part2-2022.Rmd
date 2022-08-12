@@ -39,7 +39,6 @@ library(tidyverse)
 
 ```
 
----
 # Today's outline
 
 1. A conceptual background to (computational) text analysis in R
