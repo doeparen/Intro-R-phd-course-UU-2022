@@ -21,7 +21,7 @@ Depending on your level and your interests, you can either start with completing
 6. Generate a tf-idf object (i.e. term frequency–inverse document frequency) to inspect what words are most distinct for each document.
 
 ## B. Text analysis with tidy text
-1. Load the tidy text package and the gutenbergR package. Download the four books by the author Woolf, Virginia by using the gutenberg_download() command.
+1. Load the tidy text package and the gutenbergR package. Download the four books by the author Woolf, Virginia by only using Rstudio.
 2. Convert your set of books into the tidy text format and remove stop words with the list provided in tidytext package.
 3. Look up the 10 most frequently occurring terms for each book.
 4. Construct a tf-idf object (i.e. term frequency–inverse document frequency) and look up the five words with the highest score for each document. Compare how and think about why they differ from the 5 most frequently used words (task B.3).
