@@ -403,11 +403,11 @@ Socbooks.dtm
 ```
 ---
 # Run a topic model
-Now we are ready for topic modeling. This time we will go for the Latent Dirichlet Allocation (LDA), a classic and  popular topic model. 
+Now we are ready for topic modeling. This time we will go for the Latent Dirichlet Allocation (LDA), a classic and still most popular topic model. 
 ```{r, echo = T, eval = F}
-library(topicmodels)
+library(topicmodels) # a package for LDA and correlated topic models (CTM) by its creators
 Socbooks.lda <- LDA(Socbooks.dtm, # function for generating a LDA
-                    k = 4, # in toopic modeling, you have to slect the number of topics (k); go for 4
+                    k = 4, # in topic modeling you have to select the number of topics (k); this can be tricky but for now let's go for 4
                     control = list(seed = 1234)) # again, to get the same results for randomization
 ```
 
@@ -432,10 +432,10 @@ Socbooks.lda.beta
 To interpret the topics, we are interested in the words with the highest probability for each topic.
 ```{r, echo = T, eval = F}
 Socbooks.lda.beta.top10 <- Socbooks.lda.beta %>%
-  group_by(topic) %>%
-  slice_max(beta, n = 10) %>% 
-  ungroup() %>%
-  arrange(topic, -beta)
+  group_by(topic) %>% # we group by the 4 topics
+  slice_max(beta, n = 10) %>% # for each we keep the 10 words with the largest beta value
+  ungroup() %>% # ungroup the grouping
+  arrange(topic, -beta) # arrange the scores by topic and beta
 ```
 
 ```{r}
@@ -448,16 +448,16 @@ Socbooks.lda.beta.top10
 ```
 ---
 # Viz topic model beta (1/2)
-Let us visualize the top words topic by topic.
+Let us visualize the top words, topic by topic.
 ```{r, echo = T, eval = F}
 library(ggplot2)
 
 Socbooks.lda.beta.top10 %>%
-  mutate(term = reorder_within(term, beta, topic)) %>%
-  ggplot(aes(beta, term, fill = factor(topic))) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~ topic, scales = "free") +
-  scale_y_reordered()
+  mutate(term = reorder_within(term, beta, topic)) %>% # order terms after their beta values in each topic
+  ggplot(aes(beta, term, fill = factor(topic))) + # beta values as x, terms as y and fill by the topics as factors
+  geom_col(show.legend = FALSE) + # bar chart without legend
+  facet_wrap(~ topic, scales = "free") + # free scale wrap after topic
+  scale_y_reordered() # order after terms
 ```
 ---
 # Viz topic model beta (2/2)
@@ -486,14 +486,13 @@ Socbooks.lda.gamma
 ```
 ---
 # Viz topic model gamma (1/2)
-Let us visualize how the topics and books are related.
+Let us visualize how the topics and the books relate to one another.
 ```{r, echo = T, eval = F}
 Socbooks.lda.gamma %>%
-  mutate(document = reorder(document, gamma * topic)) %>%
-  ggplot(aes(factor(topic), gamma)) +
-  geom_boxplot() +
-  facet_wrap(~ document) +
-  labs(x = "topic", y = expression(gamma))
+  mutate(document = reorder(document, gamma * topic)) %>% # order the books after their gamma values vis-a-vis each topic
+  ggplot(aes(factor(topic), gamma)) + # factor topics
+  geom_boxplot() + # choose box plot for easy comparison
+  facet_wrap(~ document)
 ```
 ---
 # Viz topic model gamma (2/2)
@@ -503,8 +502,7 @@ Socbooks.lda.gamma %>%
   mutate(document = reorder(document, gamma * topic)) %>%
   ggplot(aes(factor(topic), gamma)) +
   geom_boxplot() +
-  facet_wrap(~ document) +
-  labs(x = "topic", y = expression(gamma))
+  facet_wrap(~ document)
 ```
 ---
 # Adding sentiments to your analysis

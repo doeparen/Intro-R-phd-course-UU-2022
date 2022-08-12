@@ -50,8 +50,11 @@ library(tidyverse)
 
 4. Individually solving the problem set by building your own Gutenberg corpus
 ---
+# Loading character vector documents (1/2)
+To get going with our text analysis we need something to work with and to make it really simple we can generate our own documents by writing a few character vectors, such as a few juicy quotes from classical sociologists.
+---
 
-# Loading character vector documents
+# Loading character vector documents (2/2)
 ```{r, echo = T, eval = F}
 Soctxt.raw <- c(Durkheim = "Sociological method as we practice it rests wholly on the basic principle that social facts must be studied as things, that is, as realities external to the individual. There is no principle for which we have received more criticism; but none is more fundamental. Indubitably for sociology to be possible, it must above all have an object all its own. It must take cognizance of a reality which is not in the domain of other sciences... there can be no sociology unless societies exist, and that societies cannot exist if there are only individuals.", 
                Weber = "'Sociology' is a word which is used in many different senses. In the sense adopted here, it means the science whose object is to interpret the meaning of social action and thereby give a causal explanation of the way in which the action proceeds and the effects which it produces. By 'action' in this definition is meant human behaviour when and to the extent that the agent of agents see it as subjectively meaningful: the behaviour may be either internal or external, and may consist in the agent's doing something, omitting to do something, or having something done to him. By 'social' action is meant an action in which the meaning intended by the agent or agents involves a relation to another person's behaviour and in which that relation determines the way in which the action proceeds.", 
@@ -70,10 +73,11 @@ Soctxt.raw <- c(Durkheim = "Sociological method as we practice it rests wholly o
 
 ---
 # Creating a corpus (vector source)
+To facilitate the analysis we can built a corpus object so that we can easily run each task on the whole body of texts.
 ```{r, echo = T, eval = F}
 library(tm) # package for general text mining tasks
 Soctxt.corp <- VCorpus(VectorSource(Soctxt.raw)) # create a volatile corpus, kept in memory as a R object.
-inspect(Soctxt.corp)
+inspect(Soctxt.corp) # let us have an overarching look with the tm function inspect
 ```
 
 ```{r}
@@ -86,9 +90,10 @@ inspect(Soctxt.corp)
 
 ---
 # Exporting corpus and importing txt
+Perhaps we would at some point like to export our corpus from Rstudio to a folder on our disk. This can be made conveniently with the tm package. 
 ```{r, echo = T, eval = F}
-writeCorpus(Soctxt.corp)
-Soctxt.dir <- VCorpus(DirSource(pattern = ".txt")) #default is reading txt from wd
+writeCorpus(Soctxt.corp) # write corpus disk
+Soctxt.dir <- VCorpus(DirSource(pattern = ".txt")) # generate a new corpus directly from disk; default is reading txt from the working directory
 inspect(Soctxt.dir)
 ```
 
@@ -102,22 +107,17 @@ inspect(Soctxt.dir)
 
 ---
 # Managing corpus metadata
+The two  main reasons for why you would like to have a corpus object is to store the documents' textual content and metadata. The later is use to keeping track of adn compare the documents. With the following code, we can couple the quote with its author. 
 ```{r, echo = T, eval = F}
-meta(Soctxt.corp) <- c("Durkheim", "Weber", "Simmel", "Tarde")
-meta(Soctxt.corp)
-
-meta(Soctxt.corp[[1]], "author") <- "Durkheim"
+meta(Soctxt.corp[[1]], "author") <- "Durkheim" # select the first quote and add the name to the author variable.
 meta(Soctxt.corp[[2]], "author") <- "Weber"
 meta(Soctxt.corp[[3]], "author") <- "Simmel"
 meta(Soctxt.corp[[4]], "author") <- "Tarde"
 
-meta(corpus[[3]])
+meta(Soctxt.corp[[3]]) # take a look at the third quoute by Simmel
 ```
 
 ```{r}
-meta(Soctxt.corp) <- c("Durkheim", "Weber", "Simmel", "Tarde")
-meta(Soctxt.corp)
-
 meta(Soctxt.corp[[1]], "author") <- "Durkheim"
 meta(Soctxt.corp[[2]], "author") <- "Weber"
 meta(Soctxt.corp[[3]], "author") <- "Simmel"
@@ -128,8 +128,9 @@ meta(Soctxt.corp[[3]])
 
 ---
 # Preprocessing - to lower case
+We will here work with the bag-of-words model and, thus, we want words with the same meaning to end up in the same count. To enable this, we need to do some preprocessing tasks with the tm_map function. First off, we would like to treat words with uppercase and/or lowercase letters as the same. 
 ```{r, echo = T, eval = F}
-Soctxt.corp.low <- tm_map(Soctxt.corp, content_transformer(tolower))
+Soctxt.corp.low <- tm_map(Soctxt.corp, content_transformer(tolower)) # we transform all letters to lowercase
 
 Soctxt.corp.low[[3]]$content # What happened to Simmel?
 ```
@@ -141,8 +142,9 @@ Soctxt.corp.low[[3]]$content # What happened to Simmel?
 ```
 ---
 # Preprocessing - remove punctuation
+Second, punctuation within and around words can also disturb our preferred word couplings (e.g. "full-text" and "fulltext").
 ```{r, echo = T, eval = F}
-Soctxt.corp.punct <- tm_map(Soctxt.corp, removePunctuation)
+Soctxt.corp.punct <- tm_map(Soctxt.corp, removePunctuation) # we simply remove all forms of puntuations
 
 Soctxt.corp.punct[[3]]$content # What happened to Simmel?
 ```
@@ -154,7 +156,38 @@ Soctxt.corp.punct[[3]]$content # What happened to Simmel?
 ```
 
 ---
+# Preprocessing - managing stop words (1/2)
+Thirdly, too common and indistinct words, which are refered to as stop words, will create noise for most text analysis tasks. Thus, these will have to be removed. We can both make up our own set of words and rely on universal dictionaries of words, in this case English stop words.
+```{r, echo = T, eval = F}
+Soctxt.stop.words <- c("something", "can", "must", "since")
+
+stopwords("en")
+```
+
+```{r}
+Soctxt.stop.words <- c("something", "can", "must", "since")
+
+stopwords("en")
+```
+---
+# Preprocessing - managing stop words (2/2)
+```{r, echo = T, eval = F}
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
+
+Soctxt.corp.stop[[3]]$content # What happened to Simmel?
+```
+
+```{r}
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
+
+Soctxt.corp.stop[[3]]$content # What happened to Simmel?
+```
+---
+
 # Preprocessing - strip whitespace
+Thirdly, white space 
 ```{r, echo = T, eval = F}
 stripcorpus <- tm_map(Soctxt.corp, stripWhitespace)
 
@@ -165,34 +198,6 @@ stripcorpus[[3]]$content # What happened to Simmel?
 stripcorpus <- tm_map(Soctxt.corp, stripWhitespace)
 
 stripcorpus[[3]]$content # What happened to Simmel?
-```
----
-# Preprocessing - managing stopwords (1/2)
-```{r, echo = T, eval = F}
-Soctxt.stop.words <- c("something", "can", "must", "since")
-
-stopwords("en")
-```
-
-```{r}
-Soctxt.stop.words <- c("something", "can", "must", "since")
-
-stopwords("en")
-```
----
-# Preprocessing - managing stopwords (2/2)
-```{r, echo = T, eval = F}
-Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
-Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
-
-Soctxt.corp.stop[[3]]$content # What happened to Simmel?
-```
-
-```{r}
-Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
-Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
-
-Soctxt.corp.stop[[3]]$content # What happened to Simmel?
 ```
 ---
 
