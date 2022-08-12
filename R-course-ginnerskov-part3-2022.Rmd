@@ -126,7 +126,7 @@ Socbooks.sub$text <- gsub("--"," ",as.character(Socbooks.sub$text)) # substitute
 ---
 
 # Turning books into a tidy tibble
-In this analysis, we are goind to work with tidytext, which is a package set out to make text analysis friendly for the tidyverse universe. This is great since we can then add on other tidyverse packages like ggplot2.
+In this analysis, we are goind to work with tidytext, which is a package set out to make text analysis friendly for the tidyverse universe. This is great since we can then add on other tidyverse packages like ggplot2 (you can later return to Pablo Lillo Cea's lecture on visualization to refresh your ggplot skills).
 ```{r, echo = T, eval = F}
 library(tidytext) # load tidytext
 Socbooks.tidy <- Socbooks.sub %>% # we work with the substituted corpus
@@ -323,7 +323,7 @@ Socbooks.tfidf %>%
 
 ---
 # Calculating word correlations
-To get some insights into how the most distinct words in the corpus are interrelated, we can calculate word correlations. 
+To get some insights into how the most distinct words in the corpus are interrelated, we can calculate word correlations. Correlations were covered earlier in the course by Anna Soloveva.
 ```{r, echo = T, eval = F}
 library(widyr) # load package for computing correlations, co-occurrences etc on tidy data
 Socbooks.word.corr <- Socbooks.word.count %>% # reuse the object for author word counts
@@ -389,7 +389,7 @@ Socbooks.word.corr.graph %>%
 
 ---
 # Preparing for topic modeling
-You might also be interested in modeling the most prevalent topics that run through your corpus. Step one is to create a document-term matrix (dtm).
+You might also be interested in modeling the most prevalent topics that run through your corpus, which can be made with topic modeling. One way to define topic modeling is to say that it is able to discover abstract topics within a corpus with the help of a probabilistic unspervised machine learning model. Step one for topic modeling is to create a document-term matrix (dtm).
 ```{r, echo = T, eval = F}
 Socbooks.dtm <- Socbooks.word.count %>% # we reuse the word counts in a dtm
   cast_dtm(author, word, n) # tidytext provides several fine cast functions to enable fast conversions

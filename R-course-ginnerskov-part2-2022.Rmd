@@ -73,7 +73,7 @@ Soctxt.raw <- c(Durkheim = "Sociological method as we practice it rests wholly o
 
 ---
 # Creating a corpus (vector source)
-To facilitate the analysis we can built a corpus object so that we can easily run each task on the whole body of texts.
+Today we going to utilize the tm package, which is the text mining package used in part 5.1 Discovery with Textual Data in the course literature _Quantitative Social Science_ by Kosuke Imai. To facilitate the analysis we can start by building a corpus object so that we can easily run each task on the whole body of texts.
 ```{r, echo = T, eval = F}
 library(tm) # package for general text mining tasks
 Soctxt.corp <- VCorpus(VectorSource(Soctxt.raw)) # create a volatile corpus, kept in memory as a R object.
@@ -132,13 +132,13 @@ We will here work with the bag-of-words model and, thus, we want words with the 
 ```{r, echo = T, eval = F}
 Soctxt.corp.low <- tm_map(Soctxt.corp, content_transformer(tolower)) # we transform all letters to lowercase
 
-Soctxt.corp.low[[3]]$content # What happened to Simmel?
+Soctxt.corp.low[[3]]$content # what happened to Simmel?
 ```
 
 ```{r}
 Soctxt.corp.low <- tm_map(Soctxt.corp, content_transformer(tolower))
 
-Soctxt.corp.low[[3]]$content # What happened to Simmel?
+Soctxt.corp.low[[3]]$content # what happened to Simmel?
 ```
 ---
 # Preprocessing - remove punctuation
@@ -146,22 +146,22 @@ Second, punctuation within and around words can also disturb our preferred word 
 ```{r, echo = T, eval = F}
 Soctxt.corp.punct <- tm_map(Soctxt.corp, removePunctuation) # we simply remove all forms of puntuations
 
-Soctxt.corp.punct[[3]]$content # What happened to Simmel?
+Soctxt.corp.punct[[3]]$content # what happened to Simmel?
 ```
 
 ```{r}
 Soctxt.corp.punct <- tm_map(Soctxt.corp, removePunctuation)
 
-Soctxt.corp.punct[[3]]$content # What happened to Simmel?
+Soctxt.corp.punct[[3]]$content # what happened to Simmel?
 ```
 
 ---
 # Preprocessing - managing stop words (1/2)
-Thirdly, too common and indistinct words, which are refered to as stop words, will create noise for most text analysis tasks. Thus, these will have to be removed. We can both make up our own set of words and rely on universal dictionaries of words, in this case English stop words.
+Thirdly, too common and indistinct words, which are refereed to as stop words, will create noise for most text analysis tasks. Thus, these will have to be removed. We can both make up our own set of words and rely on universal dictionaries of words, in this case we will use English stop words.
 ```{r, echo = T, eval = F}
-Soctxt.stop.words <- c("something", "can", "must", "since")
+stopwords("en") # tm's list taken from the Snowball stemmer project 
 
-stopwords("en")
+Soctxt.stop.words <- c("something", "can", "must", "since") # some words not covered in the list of stop words
 ```
 
 ```{r}
@@ -171,52 +171,53 @@ stopwords("en")
 ```
 ---
 # Preprocessing - managing stop words (2/2)
+Now we are ready to remove the two stop word lists with tm_map.
 ```{r, echo = T, eval = F}
-Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
-Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en")) # you can remove any set of words with removeWords
+Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words) # we also remove our own set of words
 
-Soctxt.corp.stop[[3]]$content # What happened to Simmel?
+Soctxt.corp.stop[[3]]$content # what happened to Simmel?
 ```
 
 ```{r}
 Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, stopwords("en"))
 Soctxt.corp.stop <- tm_map(Soctxt.corp, removeWords, Soctxt.stop.words)
 
-Soctxt.corp.stop[[3]]$content # What happened to Simmel?
+Soctxt.corp.stop[[3]]$content # what happened to Simmel?
 ```
 ---
 
 # Preprocessing - strip whitespace
-Thirdly, white space 
+Thirdly, we want to remove blank spaces between words, which in programming is called whitespace and refers to any character or series of characters that represent horizontal or vertical space.
 ```{r, echo = T, eval = F}
-stripcorpus <- tm_map(Soctxt.corp, stripWhitespace)
+stripcorpus <- tm_map(Soctxt.corp, stripWhitespace) # this function will erase all forms of whitespace
 
-stripcorpus[[3]]$content # What happened to Simmel?
+stripcorpus[[3]]$content # what happened to Simmel?
 ```
 
 ```{r}
 stripcorpus <- tm_map(Soctxt.corp, stripWhitespace)
 
-stripcorpus[[3]]$content # What happened to Simmel?
+stripcorpus[[3]]$content # what happened to Simmel?
 ```
 ---
 
 # Preprocessing - stemming
+A more debated form of preprocessing is whether words should be taken for what they are or if one ought to merge words with the same stem (e.g. let "power" represent "power", "powers", "powerful" and "powerless"). This can enhance your interpretation but also cause problems. Let us try stemming our corpus.
 ```{r, echo = T, eval = F}
-library(SnowballC) # Package for stemming
-stemcorpus <- tm_map(Soctxt.corp, stemDocument)
+stemcorpus <- tm_map(Soctxt.corp, stemDocument) # tm uses Porter's stemming algorithm
 
-stemcorpus[[3]]$content # What happened to Simmel?
+stemcorpus[[3]]$content # what happened to Simmel?
 ```
 
 ```{r}
-library(SnowballC) # Package for stemming
 stemcorpus <- tm_map(Soctxt.corp, stemDocument)
 
-stemcorpus[[3]]$content # What happened to Simmel?
+stemcorpus[[3]]$content # what happened to Simmel?
 ```
 ---
 # Applying all preprocessing tasks
+In most cases, you have an idea of what preprocessing tasks you would like to use from the get-go. Thus, it is often a more convenient strategy to run multiple tm_map commands at once.
 ```{r, echo = T, eval = F}
 Soctxt.corp.clean <- Soctxt.corp %>%
   tm_map(content_transformer(tolower)) %>%
@@ -225,7 +226,7 @@ Soctxt.corp.clean <- Soctxt.corp %>%
   tm_map(stemDocument) %>%
   tm_map(stripWhitespace)
 
-Soctxt.corp.clean[[3]]$content # What happened to Simmel?
+Soctxt.corp.clean[[3]]$content # what happened to Simmel?
 ```
 
 ```{r}
@@ -236,17 +237,19 @@ Soctxt.corp.clean <- Soctxt.corp %>%
   tm_map(stemDocument) %>%
   tm_map(stripWhitespace)
 
-Soctxt.corp.clean[[3]]$content # What happened to Simmel?
+Soctxt.corp.clean[[3]]$content # what happened to Simmel?
 ```
 
 ---
 # Generating a document-term matrix
+With our clean corpus at hand we are ready to compute a document-term matrix to store word scores document by document. It is possible to do all preprocessing tasks at the same time as you create your dtm.
 ```{r, echo = T, eval = F}
-Soctxt.dtm <- DocumentTermMatrix(Soctxt.corp.clean) #Generate dtm from the preprocessed corpus
+Soctxt.dtm <- DocumentTermMatrix(Soctxt.corp.clean) # generate dtm from the preprocessed corpus
 
-Soctxt.dtm.clean <- DocumentTermMatrix(Soctxt.corp.clean, #Generate and preprocessing a dtm from the original corpus
+Soctxt.dtm.clean <- DocumentTermMatrix(Soctxt.corp.clean, # generate and preprocessing a dtm from the original corpus
                                control = list(removePunctuation = TRUE, stripWhitespace = TRUE,
-                                              removeSparseTerms = 0.99, stopwords = TRUE,
+                                              removeSparseTerms = 0.99, # remove terms that are used too few times
+                                              stopwords = TRUE,
                                               stemming = TRUE))
 inspect(Soctxt.dtm) #Inspect dtm
 ```
@@ -264,6 +267,7 @@ inspect(Soctxt.dtm) #Inspect dtm
 ```
 ---
 # Operating a dtm - terms per corpus
+The dtm can be used for a lot of more advance machine learning methods like topic modeling, but let us begin with the more simple tasks that the tm has to offer, like counting words for the whole corpus.
 ```{r, echo = T, eval = F}
 findFreqTerms(Soctxt.dtm, 4) # find terms appearing at least 4 times
 ```
@@ -273,6 +277,7 @@ findFreqTerms(Soctxt.dtm, 4) # find terms appearing at least 4 times
 ```
 ---
 # Operating a dtm - terms per doc
+You can also count words for each document.
 ```{r, echo = T, eval = F}
 findMostFreqTerms(Soctxt.dtm) # find most frequent terms for each document
 ```
@@ -283,41 +288,35 @@ findMostFreqTerms(Soctxt.dtm)
 
 ---
 # Operating a dtm - term correlations
+Perhaps your are interested in to what extent a set of words are associated, i.e. occurs together or not in the same document. For this task we can calculate correlations. 
 ```{r, echo = T, eval = F}
-findAssocs(Soctxt.dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
+findAssocs(Soctxt.dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to one or several specified terms
 ```
 
 ```{r}
 findAssocs(Soctxt.dtm, terms = "sociolog", corlimit = 0.6) # terms correlating to a specific word
 ```
 ---
-# Creating dicionaries
-```{r, echo = T, eval = F}
-inspect(DocumentTermMatrix(cleancorpus, list(dictionary=c("sociolog","interact","social")))) #dictionary
-```
 
-```{r}
-inspect(DocumentTermMatrix(cleancorpus, list(dictionary=c("sociolog","interact","social")))) #dictionary
+# BONUS: From dtm to word cloud (1/2)
+To end on a fun note, we can move beyond the tm package and generate a word cloud for our corpus.
+```{r, echo = T, eval = F}
+library(wordcloud) # packge for generating wordclouds
+Soctxt.df <- as.matrix(Soctxt.dtm) # first we need to covert our dtm to a matrix object
+Soctxt.df <- sort(colSums(Soctxt.df), decreasing = TRUE) # sort the columns in decreasing order
+Soctxt.df <- data.frame(word = names(Soctxt.df), freq = Soctxt.df) # create a data frame with the names of the words and their frequencies
+
+wordcloud(Soctxt.df$word, Soctxt.df$freq, colors = brewer.pal(12, "Dark2")) # generate a word cloud in a dark color scheme
 ```
 ---
-# BONUS: From dtm to word cloud
-```{r, echo = T, eval = F}
-library(wordcloud) #Packge for generating wordclouds
-Soctxt.df <- as.matrix(Soctxt.dtm)
-Soctxt.df <- sort(colSums(Soctxt.df),decreasing=TRUE)
-Soctxt.df <- data.frame(word = names(Soctxt.df),freq=Soctxt.df)
-
-wordcloud(df$word,df$freq,colors = brewer.pal(12, "Dark2"))
-```
----
-# BONUS: From dtm to word cloud (viz)
+# BONUS: From dtm to word cloud (2/2)
 ```{r}
 library(wordcloud) #Packge for generating wordclouds
 Soctxt.df <- as.matrix(Soctxt.dtm)
 Soctxt.df <- sort(colSums(Soctxt.df),decreasing=TRUE)
 Soctxt.df <- data.frame(word = names(Soctxt.df),freq=Soctxt.df)
 
-wordcloud(df$word,df$freq,colors = brewer.pal(12, "Dark2"))
+wordcloud(Soctxt.df$word,Soctxt.df$freq,colors = brewer.pal(12, "Dark2"))
 ```
 
 ---
