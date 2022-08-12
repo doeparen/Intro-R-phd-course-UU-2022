@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = F,
 
 library(tidyverse)
 
-#For exporting as pdf, run 'pagedown::chrome_print('html')' in the console, where 'html' is the name of html file to be exported as pdf (in this case, 'template.html').
+#For exporting as pdf, run 'pagedown::chrome_print('R-course-ginnerskov-part3-2022.html')' in the console, where 'html' is the name of html file to be exported as pdf (in this case, 'template.html').
 
 ```
 
