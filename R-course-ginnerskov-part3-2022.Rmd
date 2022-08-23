@@ -101,6 +101,8 @@ Socbooks.raw %>% # yay, we can pipe it
   count(title) # counting how many rows that are in each book
 ```
 
+--
+
 ```{r}
 Socbooks.raw %>%
   count(title)
@@ -116,6 +118,8 @@ Socbooks.sub <- Socbooks.raw # to keep things in order we create an object for s
 Socbooks.sub$text <- gsub("_","",as.character(Socbooks.sub$text)) # substitute _ for nothing in the text column
 Socbooks.sub$text <- gsub("--"," ",as.character(Socbooks.sub$text)) # substitute -- for a blank space in the text column
 ```
+
+--
 
 ```{r}
 Socbooks.sub <- Socbooks.raw # to keep things in order we create an object for substituting odd signs
@@ -135,6 +139,8 @@ Socbooks.tidy <- Socbooks.sub %>% # we work with the substituted corpus
                               # can be modified to split by n-grams, sentences, lines, paragraphs, tweets...
 head(Socbooks.tidy) # so, what happend?
 ```
+
+--
 
 ```{r}
 library(tidytext)
@@ -158,6 +164,8 @@ Socbooks.tidy.stop <- Socbooks.tidy.stop %>% # remove your own set of stop words
   anti_join(Socbooks.stop.words)
 ```
 
+--
+
 ```{r}
 Socbooks.tidy.stop <- Socbooks.tidy %>%
   anti_join(stop_words)
@@ -176,6 +184,8 @@ Socbooks.tidy.stop %>%
     count(word, sort = TRUE) %>% # we count the words and sort the counts from high to low
     top_n(10) # since this will be overwhelming we only look at the top 10
 ```
+
+--
 
 ```{r}
 Socbooks.tidy.stop %>%
@@ -217,6 +227,8 @@ Socbooks.tidy.stop %>%
     top_n(10) # only the top 10
 ```
 
+--
+
 ```{r}
 Socbooks.tidy.stop %>%
     filter(author == "Marx, Karl") %>%
@@ -237,6 +249,8 @@ Socbooks.word.count <- Socbooks.words %>% # also a separate object with the tota
 
 Socbooks.word.count <- left_join(Socbooks.word.count, Socbooks.words) # finally join the words by author with the total words of each author
 ```
+
+--
 
 ```{r}
 Socbooks.words <- Socbooks.tidy.stop %>%
@@ -332,6 +346,8 @@ Socbooks.word.corr <- Socbooks.word.count %>% # reuse the object for author word
   pairwise_cor(word, author, method = "pearson", sort = TRUE, upper = FALSE) # calculating the Pearson correlation coefficient; sort; avoid duplicates 
 ```
 
+--
+
 ```{r}
 library(widyr) 
 Socbooks.word.corr <- Socbooks.word.count %>% 
@@ -352,6 +368,8 @@ Socbooks.word.corr.graph <- Socbooks.word.corr %>%
   filter(correlation > .3) %>% # filter to avoid overflowing the graph with insignificant words
   graph_from_data_frame() # turning our word correlations into a graph
 ```
+
+--
 
 ```{r}
 library(igraph)
@@ -395,6 +413,8 @@ Socbooks.dtm <- Socbooks.word.count %>% # we reuse the word counts in a dtm
   cast_dtm(author, word, n) # tidytext provides several fine cast functions to enable fast conversions
 ```
 
+--
+
 ```{r}
 Socbooks.dtm <- Socbooks.word.count %>%
   cast_dtm(author, word, n)
@@ -411,6 +431,8 @@ Socbooks.lda <- LDA(Socbooks.dtm, # function for generating a LDA
                     control = list(seed = 1234)) # again, to get the same results for randomization
 ```
 
+--
+
 ```{r}
 library(topicmodels)
 Socbooks.lda <- LDA(Socbooks.dtm, k = 4, control = list(seed = 1234))
@@ -422,6 +444,8 @@ In a topic model, the beta tells us how probable it for words to show up in a to
 ```{r, echo = T, eval = F}
 Socbooks.lda.beta <- tidy(Socbooks.lda, matrix = "beta") # the tidy function can easily generate a beta matrix
 ```
+
+--
 
 ```{r}
 Socbooks.lda.beta <- tidy(Socbooks.lda, matrix = "beta")
@@ -437,6 +461,8 @@ Socbooks.lda.beta.top10 <- Socbooks.lda.beta %>%
   ungroup() %>% # ungroup the grouping
   arrange(topic, -beta) # arrange the scores by topic and beta
 ```
+
+--
 
 ```{r}
 Socbooks.lda.beta.top10 <- Socbooks.lda.beta %>%
@@ -480,6 +506,8 @@ In a topic model, the gamma tells us how probable it for topics to show up in a 
 Socbooks.lda.gamma <- tidy(Socbooks.lda, matrix = "gamma") # the tidy function can easily generate a gamma matrix
 ```
 
+--
+
 ```{r}
 Socbooks.lda.gamma <- tidy(Socbooks.lda, matrix = "gamma")
 Socbooks.lda.gamma
@@ -514,6 +542,8 @@ Socbooks.senti.count <- Socbooks.tidy.stop %>% # go back to our tidy corpus
   inner_join(bing) %>% # connect it with the word lexicon and its positive/negative sentiment system
   count(word, sentiment, sort = TRUE) %>% # count words by their sentiment and sort
 ```
+
+--
 
 ```{r}
 bing <- get_sentiments("bing")
@@ -556,6 +586,8 @@ Socbooks.senti.comp <- Socbooks.tidy.stop %>%
   spread(sentiment, n, fill = 0) %>% # increasing the number of columns and decreasing the number of rows
   mutate(sentiment = positive - negative) # add a new sentiment variable
 ```
+
+--
 
 ```{r}
 Socbooks.senti.comp <- Socbooks.tidy.stop %>%
